@@ -4,7 +4,7 @@ import time
 import logging
 import json
 import schedule
-import MetaTrader5 as mt5
+from mt4_python import MT4
 from datetime import datetime, timedelta
 import pytz
 from typing import Dict, List, Optional
@@ -37,22 +37,30 @@ class MT4Bridge:
         self.symbols = os.getenv('TRADING_PAIRS', 'EURUSD,GBPUSD,USDJPY').split(',')
         self.timeframe = os.getenv('TRADING_TIMEFRAME', 'M15')
         self.colombia_tz = pytz.timezone('America/Bogota')
+        self.mt4 = None
         self.setup_connections()
 
     def setup_connections(self):
         """Initialize connections to MT4, PostgreSQL and Redis"""
-        # Connect to MetaTrader 5
-        if not mt5.initialize():
-            logger.error("MT5 initialization failed")
-            sys.exit(1)
-
-        # Login to MT4 account
-        if not mt5.login(
-            int(os.getenv('MT4_ACCOUNT')),
-            password=os.getenv('MT4_PASSWORD'),
-            server=os.getenv('MT4_SERVER')
-        ):
-            logger.error("MT4 login failed")
+        try:
+            # Connect to MetaTrader 4
+            self.mt4 = MT4()
+            
+            # Login to MT4 account
+            login_result = self.mt4.login(
+                username=os.getenv('MT4_ACCOUNT'),
+                password=os.getenv('MT4_PASSWORD'),
+                server=os.getenv('MT4_SERVER'),
+                timeout=60000
+            )
+            
+            if not login_result:
+                logger.error("MT4 login failed")
+                sys.exit(1)
+                
+            logger.info("Connected to MT4")
+        except Exception as e:
+            logger.error(f"MT4 initialization failed: {e}")
             sys.exit(1)
 
         # Connect to PostgreSQL
@@ -85,13 +93,13 @@ class MT4Bridge:
         for symbol in self.symbols:
             try:
                 # Fetch last minute's OHLCV data
-                rates = mt5.copy_rates_from(symbol, mt5.TIMEFRAME_M1, datetime.now(), 1)
-                if rates is None:
+                rates = self.mt4.get_last_x_bars(symbol, 'M1', 1)
+                if not rates:
                     logger.warning(f"No data received for {symbol}")
                     continue
 
                 df = pd.DataFrame(rates)
-                df['time'] = pd.to_datetime(df['time'], unit='s')
+                df.columns = ['time', 'open', 'high', 'low', 'close', 'volume']
                 
                 # Store in TimescaleDB
                 with self.pg_conn.cursor() as cur:
@@ -122,8 +130,8 @@ class MT4Bridge:
     def update_account_metrics(self):
         """Update account metrics in database"""
         try:
-            account_info = mt5.account_info()
-            if account_info is None:
+            account_info = self.mt4.get_account_info()
+            if not account_info:
                 logger.warning("Could not fetch account info")
                 return
 
@@ -131,10 +139,10 @@ class MT4Bridge:
                 cur.execute("""
                     SELECT update_account_metrics(%s, %s, %s, %s)
                 """, (
-                    float(account_info.balance),
-                    float(account_info.equity),
-                    float(account_info.margin),
-                    float(account_info.margin_free)
+                    float(account_info['balance']),
+                    float(account_info['equity']),
+                    float(account_info['margin']),
+                    float(account_info['margin_free'])
                 ))
             self.pg_conn.commit()
         except Exception as e:
@@ -144,8 +152,8 @@ class MT4Bridge:
     def sync_active_trades(self):
         """Synchronize active trades with MT4"""
         try:
-            positions = mt5.positions_get()
-            if positions is None:
+            positions = self.mt4.get_open_positions()
+            if not positions:
                 logger.info("No active positions")
                 positions = []
 
@@ -159,18 +167,18 @@ class MT4Bridge:
                 position_tickets = set()
 
                 for pos in positions:
-                    position_tickets.add(pos.ticket)
+                    position_tickets.add(pos['ticket'])
                     position_data.append((
-                        pos.ticket,
-                        pos.symbol,
-                        'BUY' if pos.type == mt5.POSITION_TYPE_BUY else 'SELL',
-                        pos.volume,
-                        datetime.fromtimestamp(pos.time, tz=pytz.UTC),
-                        pos.price_open,
-                        pos.sl,
-                        pos.tp,
-                        pos.profit,
-                        (pos.price_current - pos.price_open) * (1 if pos.type == mt5.POSITION_TYPE_BUY else -1) * 10000,
+                        pos['ticket'],
+                        pos['symbol'],
+                        pos['type'],  # 'buy' or 'sell'
+                        pos['lots'],
+                        pos['open_time'],
+                        pos['open_price'],
+                        pos['sl'],
+                        pos['tp'],
+                        pos['profit'],
+                        (pos['current_price'] - pos['open_price']) * (1 if pos['type'].lower() == 'buy' else -1) * 10000,
                         'mean_reversion'  # Strategy name
                     ))
 
@@ -191,10 +199,10 @@ class MT4Bridge:
                 closed_tickets = db_tickets - position_tickets
                 if closed_tickets:
                     # Get historical data for closed trades
+                    history = self.mt4.get_closed_positions()
                     for ticket in closed_tickets:
-                        history = mt5.history_deals_get(ticket=ticket)
-                        if history:
-                            deal = history[-1]  # Get the closing deal
+                        closed_trade = next((t for t in history if t['ticket'] == ticket), None)
+                        if closed_trade:
                             cur.execute("""
                                 INSERT INTO trade_history (
                                     ticket, symbol, type, lots, open_time, close_time,
@@ -208,11 +216,12 @@ class MT4Bridge:
                                 FROM active_trades
                                 WHERE ticket = %s
                             """, (
-                                datetime.fromtimestamp(deal.time, tz=pytz.UTC),
-                                deal.price,
-                                deal.profit,
-                                (deal.price - deal.price_open) * (1 if deal.type == mt5.DEAL_TYPE_BUY else -1) * 10000,
-                                deal.comment or 'manual',
+                                closed_trade['close_time'],
+                                closed_trade['close_price'],
+                                closed_trade['profit'],
+                                (closed_trade['close_price'] - closed_trade['open_price']) * 
+                                (1 if closed_trade['type'].lower() == 'buy' else -1) * 10000,
+                                closed_trade['comment'] or 'manual',
                                 ticket
                             ))
                             
@@ -249,8 +258,9 @@ class MT4Bridge:
 async def health_check():
     """Health check endpoint"""
     try:
-        if not mt5.initialize():
-            raise HTTPException(status_code=500, detail="MT5 connection failed")
+        bridge = MT4Bridge()
+        if not bridge.mt4:
+            raise HTTPException(status_code=500, detail="MT4 connection failed")
         return {"status": "healthy"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

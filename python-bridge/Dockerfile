@@ -10,6 +10,8 @@ RUN apt-get update && \
     wget \
     build-essential \
     python3-dev \
+    libxcb1 \
+    xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -18,11 +20,17 @@ WORKDIR /app
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Set up virtual display for MetaTrader5
+ENV DISPLAY=:99
+RUN mkdir -p /tmp/.X11-unix && \
+    chmod 1777 /tmp/.X11-unix
 
-# Install MetaTrader5 from wheel file
-RUN pip install --no-cache-dir https://github.com/5k3105/mt5linux/raw/master/MetaTrader5-5.0.45-cp311-cp311-linux_x86_64.whl
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Start Xvfb in the background when container starts
+CMD Xvfb :99 -screen 0 1024x768x16 & python main.py
 
 # Copy the rest of the application
 COPY . .
