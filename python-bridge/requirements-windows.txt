@@ -1,0 +1,2 @@
+# Windows-only requirements (MetaTrader5 requires Windows)
+MetaTrader5==5.0.37
