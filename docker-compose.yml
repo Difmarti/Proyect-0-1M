@@ -67,15 +67,14 @@ services:
       - MT4_ACCOUNT=${MT4_ACCOUNT}
       - MT4_PASSWORD=${MT4_PASSWORD}
       - MT4_SERVER=${MT4_SERVER}
-      - DISPLAY=:99
     volumes:
       - ./python-bridge:/app
-      - /tmp/.X11-unix:/tmp/.X11-unix
     healthcheck:
-      test: ["CMD", "python", "-c", "import MetaTrader5 as mt5; mt5.initialize()"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 30s
     networks:
       - trading_network
 
@@ -94,11 +93,11 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - CORS_ORIGINS=http://localhost:8501
-      - PORT=8008
+      - PORT=8080
     ports:
-      - "8008:8008"
+      - "8080:8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -115,7 +114,7 @@ services:
     depends_on:
       - api
     environment:
-      - API_URL=http://api:8008
+      - API_URL=http://api:8080
     ports:
       - "8501:8501"
     healthcheck:

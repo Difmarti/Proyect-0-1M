@@ -6,14 +6,16 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Function to check if a command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
+# Check Docker
+if ! command -v docker >/dev/null 2>&1; then
+    echo -e "${RED}Error: Docker is not installed${NC}"
+    exit 1
+fi
 
-# Function to check if a port is available
+# Check ports using ss instead of netstat
+echo -e "${YELLOW}Checking port availability...${NC}"
 check_port() {
-    if netstat -tuln | grep -q ":$1 "; then
+    if ss -tuln | grep -q ":$1 "; then
         echo -e "${RED}Port $1 is already in use${NC}"
         return 1
     fi
@@ -50,7 +52,7 @@ fi
 
 # Check ports
 echo -e "${YELLOW}Checking port availability...${NC}"
-required_ports=(5432 6379 8000 8501 9000)
+required_ports=(5432 6379 8080 8501 9000)
 for port in "${required_ports[@]}"; do
     if ! check_port "$port"; then
         echo -e "${RED}Please free up port $port before continuing${NC}"
@@ -104,7 +106,7 @@ fi
 echo -e "${GREEN}Installation completed successfully!${NC}"
 echo -e "\nAccess points:"
 echo -e "Dashboard: http://localhost:8501"
-echo -e "API Docs:  http://localhost:8000/docs"
+echo -e "API Docs:  http://localhost:8080/docs"
 echo -e "Portainer: http://localhost:9000"
 echo -e "\nTo view logs: ./check_health.sh"
 echo -e "To stop services: ./stop_bot.sh"
