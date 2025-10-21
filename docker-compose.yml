@@ -6,8 +6,7 @@ services:
   # ======================
   postgres:
     image: postgres:15-alpine
-    container_name: trading_postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: trading_admin
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-SuperSecurePass123!}
@@ -30,8 +29,7 @@ services:
   # ======================
   redis:
     image: redis:7-alpine
-    container_name: trading_redis
-    restart: always
+    restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
@@ -50,8 +48,7 @@ services:
   # ======================
   timescaledb:
     image: timescale/timescaledb:latest-pg15
-    container_name: trading_timescale
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: timescale_user
       POSTGRES_PASSWORD: ${TIMESCALE_PASSWORD:-TimescalePass123!}
@@ -70,13 +67,11 @@ services:
     build:
       context: ./trading_bot
       dockerfile: Dockerfile
-    container_name: trading_bot_main
-    restart: always
+    image: trading-bot:latest
+    restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - postgres
+      - redis
     environment:
       # Configuración de Broker
       BROKER: tickmill
@@ -128,8 +123,8 @@ services:
     build:
       context: ./ml_engine
       dockerfile: Dockerfile
-    container_name: trading_ml_engine
-    restart: always
+    image: ml-engine:latest
+    restart: unless-stopped
     depends_on:
       - postgres
       - redis
@@ -162,8 +157,8 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: trading_api
-    restart: always
+    image: trading-api:latest
+    restart: unless-stopped
     depends_on:
       - postgres
       - redis
@@ -186,8 +181,8 @@ services:
     build:
       context: ./dashboard
       dockerfile: Dockerfile
-    container_name: trading_dashboard
-    restart: always
+    image: trading-dashboard:latest
+    restart: unless-stopped
     depends_on:
       - api
     environment:
@@ -206,8 +201,7 @@ services:
   # ======================
   grafana:
     image: grafana/grafana:latest
-    container_name: trading_grafana
-    restart: always
+    restart: unless-stopped
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
@@ -225,8 +219,7 @@ services:
   # ======================
   prometheus:
     image: prom/prometheus:latest
-    container_name: trading_prometheus
-    restart: always
+    restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -243,8 +236,7 @@ services:
   # ======================
   jupyter:
     image: jupyter/datascience-notebook:latest
-    container_name: trading_jupyter
-    restart: always
+    restart: unless-stopped
     environment:
       - JUPYTER_ENABLE_LAB=yes
       - JUPYTER_TOKEN=${JUPYTER_TOKEN:-your-token-here}
@@ -262,8 +254,7 @@ services:
   # ======================
   nginx:
     image: nginx:alpine
-    container_name: trading_nginx
-    restart: always
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
