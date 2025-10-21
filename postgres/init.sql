@@ -4,13 +4,13 @@ CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 -- Create OHLCV table for price data
 CREATE TABLE IF NOT EXISTS price_data (
     time        TIMESTAMPTZ NOT NULL,
-    symbol      VARCHAR(10) NOT NULL,
+    symbol      TEXT NOT NULL,
     open        DECIMAL(10, 5) NOT NULL,
     high        DECIMAL(10, 5) NOT NULL,
     low         DECIMAL(10, 5) NOT NULL,
     close       DECIMAL(10, 5) NOT NULL,
     volume      DECIMAL(18, 8) NOT NULL,
-    timeframe   VARCHAR(3) NOT NULL
+    timeframe   TEXT NOT NULL
 );
 
 -- Convert it to a hypertable
@@ -23,8 +23,8 @@ CREATE INDEX IF NOT EXISTS idx_price_data_symbol_time ON price_data (symbol, tim
 CREATE TABLE IF NOT EXISTS active_trades (
     trade_id        BIGSERIAL PRIMARY KEY,
     ticket          BIGINT NOT NULL UNIQUE,
-    symbol          VARCHAR(10) NOT NULL,
-    type            VARCHAR(4) NOT NULL, -- 'BUY' or 'SELL'
+    symbol          TEXT NOT NULL,
+    type            TEXT NOT NULL, -- 'BUY' or 'SELL'
     lots            DECIMAL(10, 2) NOT NULL,
     open_time       TIMESTAMPTZ NOT NULL,
     open_price      DECIMAL(10, 5) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS active_trades (
     take_profit     DECIMAL(10, 5),
     current_profit  DECIMAL(10, 2),
     current_pips    DECIMAL(10, 1),
-    strategy        VARCHAR(50),
+    strategy        TEXT,
     last_updated    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS active_trades (
 CREATE TABLE IF NOT EXISTS trade_history (
     trade_id        BIGSERIAL PRIMARY KEY,
     ticket          BIGINT NOT NULL,
-    symbol          VARCHAR(10) NOT NULL,
-    type            VARCHAR(4) NOT NULL,
+    symbol          TEXT NOT NULL,
+    type            TEXT NOT NULL,
     lots            DECIMAL(10, 2) NOT NULL,
     open_time       TIMESTAMPTZ NOT NULL,
     close_time      TIMESTAMPTZ NOT NULL,
@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS trade_history (
     take_profit     DECIMAL(10, 5),
     profit          DECIMAL(10, 2) NOT NULL,
     pips            DECIMAL(10, 1) NOT NULL,
-    strategy        VARCHAR(50),
-    reason          VARCHAR(50)
+    strategy        TEXT,
+    reason          TEXT
 );
 
 -- Create index for trade history
@@ -60,17 +60,18 @@ CREATE INDEX IF NOT EXISTS idx_trade_history_time ON trade_history (close_time D
 
 -- Create table for bot decisions and signals
 CREATE TABLE IF NOT EXISTS trading_signals (
-    signal_id       BIGSERIAL PRIMARY KEY,
+    signal_id       BIGSERIAL,
     time            TIMESTAMPTZ NOT NULL,
-    symbol          VARCHAR(10) NOT NULL,
-    type            VARCHAR(10) NOT NULL, -- 'BUY', 'SELL', 'CLOSE'
+    symbol          TEXT NOT NULL,
+    type            TEXT NOT NULL, -- 'BUY', 'SELL', 'CLOSE'
     strength        DECIMAL(5, 2), -- Signal strength score
     rsi             DECIMAL(10, 2),
     bb_position     DECIMAL(5, 2), -- Position relative to Bollinger Bands
-    ema_trend       VARCHAR(10), -- 'ABOVE' or 'BELOW' EMA
+    ema_trend       TEXT, -- 'ABOVE' or 'BELOW' EMA
     executed        BOOLEAN DEFAULT false,
     reason          TEXT,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (signal_id, time)
 );
 
 -- Convert signals to a hypertable
