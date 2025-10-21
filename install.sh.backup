@@ -6,6 +6,11 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 # Function to check if a port is available
 check_port() {
     if ss -tuln | grep -q ":$1 "; then
@@ -19,8 +24,8 @@ check_port() {
 echo -e "${YELLOW}Checking system requirements...${NC}"
 
 # Check Docker
-if ! docker version > /dev/null 2>&1; then
-    echo -e "${RED}Error: Docker is not installed or not running${NC}"
+if ! command_exists docker; then
+    echo -e "${RED}Error: Docker is not installed${NC}"
     exit 1
 fi
 
@@ -28,10 +33,41 @@ fi
 docker compose version > /dev/null 2>&1
 COMPOSE_CHECK=$?
 if [ $COMPOSE_CHECK -ne 0 ]; then
-    if ! docker-compose --version > /dev/null 2>&1; then
+    if ! command_exists docker-compose; then
         echo -e "${RED}Error: Docker Compose is not installed${NC}"
         exit 1
     fi
+fi
+
+# Check ports
+echo -e "${YELLOW}Checking port availability...${NC}"
+
+# Check system requirements
+echo -e "${YELLOW}Checking system requirements...${NC}"
+
+# Check OS
+if [[ "$(lsb_release -rs)" != "22.04" ]]; then
+    echo -e "${RED}Error: This script requires Ubuntu 22.04 LTS${NC}"
+    exit 1
+fi
+
+# Check RAM
+total_ram=$(free -g | awk '/^Mem:/{print $2}')
+if [ "$total_ram" -lt 8 ]; then
+    echo -e "${RED}Error: System requires at least 8GB RAM${NC}"
+    exit 1
+fi
+
+# Check Docker
+if ! command_exists docker; then
+    echo -e "${RED}Error: Docker is not installed${NC}"
+    exit 1
+fi
+
+# Check Docker Compose
+if ! command_exists docker-compose; then
+    echo -e "${RED}Error: Docker Compose is not installed${NC}"
+    exit 1
 fi
 
 # Check ports
@@ -46,9 +82,12 @@ done
 
 # Create directories
 echo -e "${YELLOW}Creating project structure...${NC}"
-mkdir -p postgres/data python-bridge/logs api/logs dashboard/logs
+mkdir -p postgres/data
+mkdir -p python-bridge/logs
+mkdir -p api/logs
+mkdir -p dashboard/logs
 
-# Copy environment file if it doesn't exist
+# Copy environment file
 if [ ! -f .env ]; then
     echo -e "${YELLOW}Creating .env file...${NC}"
     cp .env.example .env
@@ -57,15 +96,11 @@ fi
 
 # Start Docker services
 echo -e "${YELLOW}Starting Docker services...${NC}"
-if docker compose version > /dev/null 2>&1; then
-    docker compose up -d
-else
-    docker-compose up -d
-fi
+docker-compose up -d
 
 # Wait for services to be ready
 echo -e "${YELLOW}Waiting for services to be ready...${NC}"
-sleep 30
+sleep 10
 
 # Check service health
 echo -e "${YELLOW}Checking service health...${NC}"
@@ -84,7 +119,7 @@ done
 
 if [ "$all_healthy" = false ]; then
     echo -e "${RED}Some services are not healthy. Please check docker logs for details${NC}"
-    echo -e "Use: docker compose logs -f [service_name]"
+    echo -e "Use: docker-compose logs -f [service_name]"
     exit 1
 fi
 
@@ -93,3 +128,6 @@ echo -e "\nAccess points:"
 echo -e "Dashboard: http://localhost:8501"
 echo -e "API Docs:  http://localhost:8080/docs"
 echo -e "Portainer: http://localhost:9000"
+echo -e "\nTo view logs: ./check_health.sh"
+echo -e "To stop services: ./stop_bot.sh"
+echo -e "To start services: ./start_bot.sh"
