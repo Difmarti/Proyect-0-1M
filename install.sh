@@ -6,14 +6,12 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Check Docker
-if ! command -v docker >/dev/null 2>&1; then
-    echo -e "${RED}Error: Docker is not installed${NC}"
-    exit 1
-fi
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
 
-# Check ports using ss instead of netstat
-echo -e "${YELLOW}Checking port availability...${NC}"
+# Function to check if a port is available
 check_port() {
     if ss -tuln | grep -q ":$1 "; then
         echo -e "${RED}Port $1 is already in use${NC}"
@@ -21,6 +19,24 @@ check_port() {
     fi
     return 0
 }
+
+# Check system requirements
+echo -e "${YELLOW}Checking system requirements...${NC}"
+
+# Check Docker
+if ! command_exists docker; then
+    echo -e "${RED}Error: Docker is not installed${NC}"
+    exit 1
+fi
+
+# Check Docker Compose
+if ! command_exists "docker compose"; then
+    echo -e "${RED}Error: Docker Compose is not installed${NC}"
+    exit 1
+fi
+
+# Check ports
+echo -e "${YELLOW}Checking port availability...${NC}"
 
 # Check system requirements
 echo -e "${YELLOW}Checking system requirements...${NC}"
