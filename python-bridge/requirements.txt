@@ -10,4 +10,4 @@ requests>=2.31.0
 python-dateutil>=2.8.2
 pytz>=2023.3.post1
 schedule>=1.2.1
-MetaTrader4>=0.1.2  # Librería para MT4
+MetaTrader5==5.0.45  # Using MT5 as alternative

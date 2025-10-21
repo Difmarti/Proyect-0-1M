@@ -10,7 +10,6 @@ RUN apt-get update && \
     wget \
     build-essential \
     python3-dev \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -21,7 +20,6 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir git+https://github.com/khramkov/MetaTrader4-Python-Library.git && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application
