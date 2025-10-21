@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Function to check if a port is available
+check_port() {
+    if netstat -tuln | grep -q ":$1 "; then
+        echo -e "${RED}Port $1 is already in use${NC}"
+        return 1
+    fi
+    return 0
+}
+
+# Check system requirements
+echo -e "${YELLOW}Checking system requirements...${NC}"
+
+# Check OS
+if [[ "$(lsb_release -rs)" != "22.04" ]]; then
+    echo -e "${RED}Error: This script requires Ubuntu 22.04 LTS${NC}"
+    exit 1
+fi
+
+# Check RAM
+total_ram=$(free -g | awk '/^Mem:/{print $2}')
+if [ "$total_ram" -lt 8 ]; then
+    echo -e "${RED}Error: System requires at least 8GB RAM${NC}"
+    exit 1
+fi
+
+# Check Docker
+if ! command_exists docker; then
+    echo -e "${RED}Error: Docker is not installed${NC}"
+    exit 1
+fi
+
+# Check Docker Compose
+if ! command_exists docker-compose; then
+    echo -e "${RED}Error: Docker Compose is not installed${NC}"
+    exit 1
+fi
+
+# Check ports
+echo -e "${YELLOW}Checking port availability...${NC}"
+required_ports=(5432 6379 8000 8501 9000)
+for port in "${required_ports[@]}"; do
+    if ! check_port "$port"; then
+        echo -e "${RED}Please free up port $port before continuing${NC}"
+        exit 1
+    fi
+done
+
+# Create directories
+echo -e "${YELLOW}Creating project structure...${NC}"
+mkdir -p postgres/data
+mkdir -p python-bridge/logs
+mkdir -p api/logs
+mkdir -p dashboard/logs
+
+# Copy environment file
+if [ ! -f .env ]; then
+    echo -e "${YELLOW}Creating .env file...${NC}"
+    cp .env.example .env
+    echo -e "${GREEN}Created .env file. Please edit it with your settings${NC}"
+fi
+
+# Start Docker services
+echo -e "${YELLOW}Starting Docker services...${NC}"
+docker-compose up -d
+
+# Wait for services to be ready
+echo -e "${YELLOW}Waiting for services to be ready...${NC}"
+sleep 10
+
+# Check service health
+echo -e "${YELLOW}Checking service health...${NC}"
+services=("trading_timescaledb" "trading_redis" "trading_bridge" "trading_api" "trading_dashboard" "trading_portainer")
+all_healthy=true
+
+for service in "${services[@]}"; do
+    health_status=$(docker inspect --format='{{.State.Health.Status}}' "$service" 2>/dev/null)
+    if [ "$health_status" != "healthy" ]; then
+        echo -e "${RED}Service $service is not healthy (Status: $health_status)${NC}"
+        all_healthy=false
+    else
+        echo -e "${GREEN}Service $service is healthy${NC}"
+    fi
+done
+
+if [ "$all_healthy" = false ]; then
+    echo -e "${RED}Some services are not healthy. Please check docker logs for details${NC}"
+    echo -e "Use: docker-compose logs -f [service_name]"
+    exit 1
+fi
+
+echo -e "${GREEN}Installation completed successfully!${NC}"
+echo -e "\nAccess points:"
+echo -e "Dashboard: http://localhost:8501"
+echo -e "API Docs:  http://localhost:8000/docs"
+echo -e "Portainer: http://localhost:9000"
+echo -e "\nTo view logs: ./check_health.sh"
+echo -e "To stop services: ./stop_bot.sh"
+echo -e "To start services: ./start_bot.sh"
