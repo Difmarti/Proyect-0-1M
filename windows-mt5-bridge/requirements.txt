@@ -1,0 +1,21 @@
+# MT5 Windows Bridge Requirements
+# Install on Windows machine with: pip install -r requirements.txt
+
+# MetaTrader 5 Python library (Windows only)
+MetaTrader5>=5.0.45
+
+# Database
+psycopg2-binary>=2.9.9
+
+# Cache
+redis>=5.0.1
+
+# Data processing
+pandas>=2.1.1
+numpy>=1.26.0
+
+# Utilities
+python-dotenv>=1.0.0
+python-dateutil>=2.8.2
+pytz>=2023.3
+schedule>=1.2.1

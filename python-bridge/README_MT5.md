@@ -1,41 +1,122 @@
-Why MetaTrader5 isn't in the main requirements
+# MetaTrader5 Integration for Linux
 
-The official `MetaTrader5` Python package is a Windows-only binary that depends on the MetaTrader terminal and Windows-specific extensions. It is not available on Linux manylinux wheels, so installing it inside Linux-based Docker images will fail.
+## Official MT5 Linux Support
 
-What I changed
+MetaQuotes provides **official native Linux support** for MetaTrader 5. This project uses the official installation method.
 
-- Removed `MetaTrader5` from `requirements.txt` (the Linux/container-friendly list).
-- Added `requirements-windows.txt` containing `MetaTrader5==5.0.37` for Windows installs.
+### Official Installation Script
 
-How to work with MT5 locally (Windows)
-
-1. Create and activate a Python virtual environment (Windows PowerShell):
-
-```powershell
-python -m venv .venv; .\.venv\Scripts\Activate.ps1
+```bash
+wget https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5linux.sh
+chmod +x mt5linux.sh
+./mt5linux.sh
 ```
 
-2. Install normal requirements:
+## Docker Architecture
 
-```powershell
+This project runs MT5 in a separate Docker container using Wine, and the Python bridge communicates with it:
+
+### Container Structure
+- **metatrader5**: Runs MT5 terminal via Wine with Xvfb (virtual display)
+- **python_bridge**: Runs Python with MetaTrader5 library, connects to MT5 container
+
+### MetaTrader5 Python Library
+
+The `MetaTrader5` Python package works on Linux when connecting to a running MT5 terminal. It's now included in the Docker image.
+
+## Installation Methods
+
+### Method 1: Docker (Recommended for Production)
+
+The entire stack runs in Docker:
+
+```bash
+# Start all services including MT5
+docker-compose up -d
+
+# Check MT5 container
+docker logs trading_mt5
+
+# Check Python bridge connection
+docker logs trading_bridge
+```
+
+### Method 2: Local Development (Linux)
+
+Install MT5 locally using the official script:
+
+```bash
+# Download and install MT5
+wget https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5linux.sh
+chmod +x mt5linux.sh
+./mt5linux.sh
+
+# Install Python dependencies
 pip install -r python-bridge/requirements.txt
+pip install MetaTrader5
+
+# Run the bridge
+python python-bridge/main.py
 ```
 
-3. Install the MT5 package (Windows only):
+### Method 3: Windows Development
+
+For Windows development:
 
 ```powershell
-pip install -r python-bridge/requirements-windows.txt
+# Create virtual environment
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# Install dependencies
+pip install -r python-bridge/requirements.txt
+pip install MetaTrader5
+
+# Run the bridge
+python python-bridge/main.py
 ```
 
-Running in Docker
+## Configuration
 
-- If you want to run the `python-bridge` service in Docker on Linux, do not include `MetaTrader5` in the image. Build the image normally; MT5 will be unavailable inside the container. Use the bridge to communicate with a remote Windows machine running MetaTrader and the necessary connector.
+MT5 credentials are configured via environment variables (`.env`):
 
-Windows containers (advanced)
+```bash
+MT5_ACCOUNT=20264646
+MT5_PASSWORD=your_password
+MT5_SERVER=Tickmill-Demo
+```
 
-- It is possible to build a Windows-based container that includes MetaTrader5, but Windows containers require a Windows host (or Windows Server) and different Docker base images. This is more complex and usually unnecessary for development.
+## Troubleshooting
 
-Alternative: remote MT5 gateway
+### MT5 Container Won't Start
+```bash
+# Check logs
+docker logs trading_mt5
 
-- For CI or Linux deployments, run the MetaTrader terminal and Python script on a Windows VM or host, and have your Linux services communicate with it over the network (HTTP/gRPC/RPC). This keeps your Linux containers lightweight and avoids Windows-only binaries inside Linux images.
+# Verify Wine installation
+docker exec trading_mt5 wine --version
+
+# Check X server
+docker exec trading_mt5 ps aux | grep Xvfb
+```
+
+### Python Bridge Can't Connect
+```bash
+# Verify MT5 is running
+docker exec trading_mt5 pgrep -f terminal64.exe
+
+# Check Python bridge logs
+docker logs trading_bridge
+
+# Test MT5 initialization
+docker exec trading_bridge python -c "import MetaTrader5 as mt5; print(mt5.initialize())"
+```
+
+### Connection Issues
+
+The MetaTrader5 Python library connects to the MT5 terminal process. Ensure:
+1. MT5 terminal is running
+2. Correct credentials in `.env`
+3. Network connectivity between containers
+4. DLL imports enabled in MT5 settings
 

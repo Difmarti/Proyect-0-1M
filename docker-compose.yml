@@ -47,37 +47,6 @@ services:
     networks:
       - trading_network
 
-  # Python Bridge for MT4 communication
-  python_bridge:
-    build:
-      context: ./python-bridge
-      dockerfile: Dockerfile
-    container_name: trading_bridge
-    restart: unless-stopped
-    depends_on:
-      timescaledb:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - REDIS_HOST=redis
-      - MT4_ACCOUNT=${MT4_ACCOUNT}
-      - MT4_PASSWORD=${MT4_PASSWORD}
-      - MT4_SERVER=${MT4_SERVER}
-    volumes:
-      - ./python-bridge:/app
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-    networks:
-      - trading_network
-
   # FastAPI REST service
   api:
     build:
@@ -125,31 +94,11 @@ services:
     networks:
       - trading_network
 
-  # Portainer for container management
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: trading_portainer
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    ports:
-      - "9000:9000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/api/system/status"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    networks:
-      - trading_network
-
 volumes:
   timescale_data:
     name: trading_timescale_data
   redis_data:
     name: trading_redis_data
-  portainer_data:
-    name: trading_portainer_data
 
 networks:
   trading_network:
