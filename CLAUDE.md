@@ -4,17 +4,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## System Overview
 
-This is an automated trading bot system for MetaTrader 4/5 with a microservices architecture. The system connects to MT4/5 via a Python bridge, stores trading data in TimescaleDB, and provides real-time monitoring through a Streamlit dashboard.
+This is an automated trading bot system for MetaTrader 5 with a microservices architecture. The system supports two deployment modes:
 
-**Architecture Components:**
-- **python_bridge**: MT4/5 connection service that fetches prices, syncs trades, and updates account metrics
+1. **Docker Mode**: MT5 runs in a Wine container alongside other services
+2. **Windows Bridge Mode**: MT5 runs natively on Windows, connects remotely to Linux services
+
+**Core Architecture Components:**
+- **python-bridge** OR **windows-mt5-bridge**: MT5 connection service that fetches prices, syncs trades, and updates account metrics
 - **api**: FastAPI REST service providing endpoints for trade data, metrics, and performance analytics
 - **dashboard**: Streamlit real-time monitoring interface
-- **timescaledb**: Time-series database for OHLCV data and trading metrics
-- **redis**: Caching and message queue
-- **portainer**: Container management UI
+- **timescaledb**: Time-series database optimized for OHLCV data and trading metrics (PostgreSQL with hypertables)
+- **redis**: High-speed caching layer for real-time metrics
+- **metatrader5** (Docker only): MT5 terminal running in Wine with Xvfb virtual display
+
+**Network Architecture (Windows Bridge Mode):**
+```
+Windows Machine (MT5 Native)     →  TCP/IP  →    Linux Server (Docker)
+├─ MetaTrader 5 Terminal                         ├─ TimescaleDB (5432)
+└─ mt5_bridge.py                                 ├─ Redis (6379)
+   (Standalone Python)                            ├─ API (8080)
+                                                  └─ Dashboard (8501)
+```
 
 ## Essential Commands
+
+### Initial Setup
+```bash
+# Complete installation with validation (recommended for first setup)
+./install.sh
+# This script will:
+# - Verify system requirements (Ubuntu, RAM, Docker)
+# - Check port availability
+# - Create .env from .env.example
+# - Generate secure PostgreSQL password
+# - Build Docker images
+# - Start services
+# - Perform health checks
+```
 
 ### Starting and Stopping
 ```bash
@@ -119,16 +145,36 @@ See python-bridge/README_MT5.md for detailed troubleshooting.
 
 ### Configuration
 All configuration is in `.env` (copy from `.env.example`):
-- **MT5 credentials**: MT5_ACCOUNT, MT5_PASSWORD, MT5_SERVER (e.g., Tickmill-Demo)
-- **Trading parameters**:
-  - TRADING_PAIRS (comma-separated: EURUSD,GBPUSD,USDJPY)
-  - TRADING_TIMEFRAME (default: M15)
-  - MAX_DAILY_DRAWDOWN (default: 6%)
-  - RISK_PER_TRADE (default: 2%)
-  - MAX_SIMULTANEOUS_TRADES (default: 3)
-  - TRADING_START_TIME / TRADING_END_TIME (Colombia timezone UTC-5)
-- **Database**: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
-- **Ports**: API_PORT (8080), DASHBOARD_PORT (8501)
+
+**MT5 Credentials:**
+- MT5_ACCOUNT: Account number
+- MT5_PASSWORD: Account password
+- MT5_SERVER: Broker server (e.g., "Tickmill-Demo")
+
+**Trading Parameters:**
+- TRADING_PAIRS: Comma-separated pairs (e.g., "EURUSD,GBPUSD,USDJPY")
+- TRADING_TIMEFRAME: Default M15
+- MAX_DAILY_DRAWDOWN: Default 6%
+- RISK_PER_TRADE: Default 2%
+- MAX_SIMULTANEOUS_TRADES: Default 3
+- TRADING_START_TIME / TRADING_END_TIME: Colombia timezone (UTC-5)
+
+**Strategy Parameters (Bollinger Bands Mean Reversion):**
+- BB_PERIOD: Bollinger Bands period (default: 20)
+- BB_DEVIATION: Standard deviations (default: 2)
+- RSI_PERIOD: RSI period (default: 14)
+- EMA_PERIOD: EMA trend filter (default: 200)
+- ATR_PERIOD: ATR for stop loss (default: 14)
+- SL_ATR_MULTIPLIER: Stop loss multiplier (default: 1.5)
+
+**Database & Services:**
+- POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+- API_PORT (default: 8080), DASHBOARD_PORT (default: 8501)
+- REDIS_PORT (default: 6379)
+
+**Windows Bridge Only:**
+- POSTGRES_HOST: Linux server IP (e.g., "192.168.1.100")
+- REDIS_HOST: Linux server IP
 
 ### Service Ports
 - TimescaleDB: 5432
@@ -137,19 +183,74 @@ All configuration is in `.env` (copy from `.env.example`):
 - Dashboard: 8501 (http://localhost:8501)
 - Portainer: 9000
 
+## Key Technical Details
+
+### Hypertables (TimescaleDB)
+The system uses TimescaleDB's hypertables for automatic time-based partitioning:
+- **price_data**: Partitioned by day, stores millions of OHLCV bars
+- **trading_signals**: Partitioned by day, records strategy decisions
+- **account_metrics**: Partitioned by day, equity curve snapshots
+
+Hypertables enable:
+- Fast queries on large datasets (automatic indexing)
+- Automatic data retention (drop old partitions)
+- Compression for data older than 7 days
+
+### Timezone Handling
+All times are converted to Colombia timezone (UTC-5):
+```python
+self.colombia_tz = pytz.timezone('America/Bogota')
+```
+This affects TRADING_START_TIME and TRADING_END_TIME enforcement.
+
+### Redis Caching Pattern
+```python
+# Latest metrics cached with 60-second TTL
+redis.set('account:metrics', json.dumps(metrics), ex=60)
+```
+Dashboard queries Redis first, falls back to PostgreSQL. Reduces database load.
+
+### Connection Architecture
+- **API**: Creates fresh PostgreSQL connection per request (no pooling)
+- **Bridge**: Persistent connections with automatic reconnection on failure
+- **Docker restart policy**: `unless-stopped` ensures services recover from crashes
+
 ## Common Development Tasks
 
 ### Adding New Currency Pairs
-1. Update `TRADING_PAIRS` in `.env` (comma-separated)
-2. Restart python_bridge: `docker-compose restart trading_bridge`
+1. Edit `.env`: `TRADING_PAIRS=EURUSD,GBPUSD,USDJPY,AUDUSD`
+2. Restart bridge: `docker-compose restart trading_bridge` (or restart Windows bridge)
+3. Verify in dashboard after ~1 minute
 
 ### Modifying Trading Strategy
-The strategy logic should be added to python-bridge/main.py. Currently, the bridge only syncs data but doesn't execute trades based on signals. The `trading_signals` table exists for storing strategy decisions.
+Strategy logic is in python-bridge/main.py or windows-mt5-bridge/mt5_bridge.py. The `trading_signals` table exists for storing strategy decisions, but trade execution logic must be implemented separately.
 
-### Database Queries
-Key functions in postgres/init.sql:
-- `calculate_drawdown()`: Returns current drawdown percentage
-- `update_account_metrics(balance, equity, margin, free_margin)`: Inserts account snapshot
+### Rebuilding Services After Code Changes
+```bash
+# Rebuild specific service
+docker-compose up -d --build api
+docker-compose up -d --build dashboard
+docker-compose up -d --build trading_bridge
+
+# Rebuild all services
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+### Database Operations
+```bash
+# Access database directly
+docker exec -it trading_timescaledb psql -U trading_user -d trading_db
+
+# Useful queries
+SELECT * FROM price_data ORDER BY time DESC LIMIT 10;
+SELECT * FROM account_metrics ORDER BY time DESC LIMIT 1;
+SELECT * FROM active_trades;
+SELECT * FROM trade_stats;
+
+# Key stored functions
+SELECT calculate_drawdown();  -- Current drawdown percentage
+```
 
 ### Testing Services
 ```bash
@@ -157,10 +258,13 @@ Key functions in postgres/init.sql:
 curl http://localhost:8080/health
 
 # Test database connection
-docker exec trading_timescaledb pg_isready -U trading_user
+docker exec trading_timescaledb pg_isready -U trading_user -d trading_db
 
 # Test Redis
 docker exec trading_redis redis-cli ping
+
+# View API documentation
+# Open browser: http://localhost:8080/docs
 ```
 
 ## Troubleshooting
@@ -223,3 +327,61 @@ docker compose up -d --build [service_name]
 # Full system restart
 docker compose down && docker compose up -d
 ```
+
+## Windows Bridge Setup
+
+For running MT5 natively on Windows instead of Docker:
+
+### Installation
+1. Copy `windows-mt5-bridge/` directory to Windows machine
+2. Install Python 3.11+ (add to PATH)
+3. Install dependencies: `pip install -r requirements.txt`
+4. Copy `.env.example` to `.env` and configure:
+   - MT5 credentials (same as Docker mode)
+   - `POSTGRES_HOST`: IP of Linux server (e.g., "192.168.1.100")
+   - `REDIS_HOST`: IP of Linux server
+
+### Linux Server Firewall Configuration
+```bash
+# Allow PostgreSQL from Windows IP
+sudo ufw allow from 192.168.1.XXX to any port 5432
+
+# Allow Redis from Windows IP
+sudo ufw allow from 192.168.1.XXX to any port 6379
+```
+
+### Running the Bridge
+```powershell
+# Run manually
+python mt5_bridge.py
+
+# View logs
+Get-Content mt5_bridge.log -Wait -Tail 50
+```
+
+### Running as Windows Service
+Use NSSM or Task Scheduler to run mt5_bridge.py automatically at startup. See windows-mt5-bridge/README.md for detailed instructions.
+
+## Project Structure
+
+```
+trading-bot/
+├── docker-compose.yml              # Service orchestration
+├── .env.example                    # Configuration template
+├── install.sh                      # Setup wizard
+├── start_bot.sh / stop_bot.sh     # Service control
+├── check_health.sh / backup.sh    # Maintenance scripts
+├── postgres/init.sql              # Database schema and hypertables
+├── python-bridge/                 # Docker MT5 bridge
+│   ├── main.py                    # Core sync logic
+│   └── README_MT5.md              # MT5 integration guide
+├── windows-mt5-bridge/            # Windows standalone bridge
+│   ├── mt5_bridge.py              # Identical sync logic
+│   └── README.md                  # Windows setup guide
+├── api/
+│   └── main.py                    # FastAPI endpoints
+├── dashboard/
+│   └── app.py                     # Streamlit UI
+└── metatrader5/
+    ├── Dockerfile                 # Wine + MT5
+    └── start_mt5.sh               # MT5 initialization

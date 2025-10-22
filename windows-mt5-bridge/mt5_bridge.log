@@ -1,0 +1,327 @@
+2025-10-22 18:15:17,518 - __main__ - INFO - ============================================================
+2025-10-22 18:15:17,518 - __main__ - INFO - MT5 Windows Bridge Starting...
+2025-10-22 18:15:17,518 - __main__ - INFO - ============================================================
+2025-10-22 18:17:48,903 - __main__ - INFO - ============================================================
+2025-10-22 18:17:48,903 - __main__ - INFO - MT5 Windows Bridge Starting...
+2025-10-22 18:17:48,903 - __main__ - INFO - ============================================================
+2025-10-22 18:17:54,283 - __main__ - INFO - MT5 logged in successfully to Tickmill-Demo with account 25251142
+2025-10-22 18:17:54,289 - __main__ - INFO - MT5 Account: 25251142, Balance: 1000.0, Server: Tickmill-Demo
+2025-10-22 18:17:54,466 - __main__ - INFO - Connected to PostgreSQL at 10.30.90.102:5432
+2025-10-22 18:17:54,539 - __main__ - INFO - Connected to Redis at 10.30.90.102:6379
+2025-10-22 18:17:54,539 - __main__ - INFO - Performing initial sync...
+2025-10-22 18:17:54,539 - __main__ - INFO - Running job: Fetch prices
+2025-10-22 18:17:54,915 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:17:55,121 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:17:55,715 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:17:56,465 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:17:57,064 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:17:57,064 - __main__ - INFO - Running job: Sync account metrics
+2025-10-22 18:17:57,096 - __main__ - ERROR - Error syncing account metrics: column "timestamp" of relation "account_metrics" does not exist
+LINE 2:                 INSERT INTO account_metrics (timestamp, bala...
+                                                     ^
+
+2025-10-22 18:17:57,096 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:17:57,096 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:17:57,111 - __main__ - ERROR - Error syncing trade history: column "volume" of relation "trade_history" does not exist
+LINE 3:                     (ticket, symbol, type, volume, open_pric...
+                                                   ^
+
+2025-10-22 18:17:57,111 - __main__ - INFO - ============================================================
+2025-10-22 18:17:57,121 - __main__ - INFO - MT5 Windows Bridge Running!
+2025-10-22 18:17:57,121 - __main__ - INFO - Scheduled tasks:
+2025-10-22 18:17:57,121 - __main__ - INFO -   - Fetch prices: Every 1 minute
+2025-10-22 18:17:57,121 - __main__ - INFO -   - Sync metrics: Every 1 minute
+2025-10-22 18:17:57,121 - __main__ - INFO -   - Sync trades: Every 30 seconds
+2025-10-22 18:17:57,121 - __main__ - INFO - ============================================================
+2025-10-22 18:18:27,143 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:18:27,143 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:18:57,317 - __main__ - INFO - Running job: Fetch prices
+2025-10-22 18:18:57,606 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:18:57,903 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:18:58,200 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:18:58,340 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:18:58,560 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:18:58,560 - __main__ - INFO - Running job: Sync account metrics
+2025-10-22 18:18:58,592 - __main__ - ERROR - Error syncing account metrics: column "timestamp" of relation "account_metrics" does not exist
+LINE 2:                 INSERT INTO account_metrics (timestamp, bala...
+                                                     ^
+
+2025-10-22 18:18:58,607 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:18:58,607 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:19:28,799 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:19:28,824 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:19:58,923 - __main__ - INFO - Running job: Fetch prices
+2025-10-22 18:19:59,090 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:19:59,325 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:19:59,512 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:19:59,809 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:20:00,012 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:20:00,028 - __main__ - INFO - Running job: Sync account metrics
+2025-10-22 18:20:00,044 - __main__ - ERROR - Error syncing account metrics: column "timestamp" of relation "account_metrics" does not exist
+LINE 2:                 INSERT INTO account_metrics (timestamp, bala...
+                                                     ^
+
+2025-10-22 18:20:00,059 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:20:00,059 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:20:30,189 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:20:30,200 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:21:00,378 - __main__ - INFO - Running job: Fetch prices
+2025-10-22 18:21:00,569 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:21:00,727 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:21:00,871 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:21:01,059 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:21:01,200 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:21:01,215 - __main__ - INFO - Running job: Sync account metrics
+2025-10-22 18:21:01,215 - __main__ - ERROR - Error syncing account metrics: column "timestamp" of relation "account_metrics" does not exist
+LINE 2:                 INSERT INTO account_metrics (timestamp, bala...
+                                                     ^
+
+2025-10-22 18:21:01,215 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:21:01,231 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:21:31,397 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:21:31,403 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:22:01,525 - __main__ - INFO - Running job: Fetch prices
+2025-10-22 18:22:01,653 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:22:01,778 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:22:01,919 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:22:02,043 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:22:02,168 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:22:02,168 - __main__ - INFO - Running job: Sync account metrics
+2025-10-22 18:22:02,184 - __main__ - ERROR - Error syncing account metrics: column "timestamp" of relation "account_metrics" does not exist
+LINE 2:                 INSERT INTO account_metrics (timestamp, bala...
+                                                     ^
+
+2025-10-22 18:22:02,184 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:22:02,184 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:22:22,778 - __main__ - INFO - ============================================================
+2025-10-22 18:22:22,778 - __main__ - INFO - MT5 Windows Bridge Starting...
+2025-10-22 18:22:22,778 - __main__ - INFO - ============================================================
+2025-10-22 18:22:22,778 - __main__ - INFO - MT5 logged in successfully to Tickmill-Demo with account 25251142
+2025-10-22 18:22:22,778 - __main__ - INFO - MT5 Account: 25251142, Balance: 1000.0, Server: Tickmill-Demo
+2025-10-22 18:22:22,809 - __main__ - INFO - Connected to PostgreSQL at 10.30.90.102:5432
+2025-10-22 18:22:22,824 - __main__ - INFO - Connected to Redis at 10.30.90.102:6379
+2025-10-22 18:22:22,824 - __main__ - INFO - Performing initial sync...
+2025-10-22 18:22:22,824 - __main__ - INFO - Running job: Fetch prices
+2025-10-22 18:22:23,012 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:22:23,184 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:22:23,326 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:22:23,485 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:22:23,660 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:22:23,660 - __main__ - INFO - Running job: Sync account metrics
+2025-10-22 18:22:23,715 - __main__ - ERROR - Error syncing account metrics: name 'margin_level' is not defined
+2025-10-22 18:22:23,715 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:22:23,723 - __main__ - INFO - Synced 0 active trades
+2025-10-22 18:22:23,723 - __main__ - ERROR - Error syncing trade history: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:22:23,723 - __main__ - INFO - ============================================================
+2025-10-22 18:22:23,723 - __main__ - INFO - MT5 Windows Bridge Running!
+2025-10-22 18:22:23,723 - __main__ - INFO - Scheduled tasks:
+2025-10-22 18:22:23,723 - __main__ - INFO -   - Fetch prices: Every 1 minute
+2025-10-22 18:22:23,723 - __main__ - INFO -   - Sync metrics: Every 1 minute
+2025-10-22 18:22:23,723 - __main__ - INFO -   - Sync trades: Every 30 seconds
+2025-10-22 18:22:23,723 - __main__ - INFO - ============================================================
+2025-10-22 18:22:32,305 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:22:32,319 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:22:53,938 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:22:53,938 - __main__ - INFO - Synced 0 active trades
+2025-10-22 18:23:02,483 - __main__ - INFO - Running job: Fetch prices
+2025-10-22 18:23:02,646 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:23:02,821 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:23:03,011 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:23:03,169 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:23:03,340 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:23:03,371 - __main__ - INFO - Running job: Sync account metrics
+2025-10-22 18:23:03,371 - __main__ - ERROR - Error syncing account metrics: column "timestamp" of relation "account_metrics" does not exist
+LINE 2:                 INSERT INTO account_metrics (timestamp, bala...
+                                                     ^
+
+2025-10-22 18:23:03,387 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:23:03,387 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:23:24,183 - __main__ - INFO - Running job: Fetch prices
+2025-10-22 18:23:24,315 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:23:24,442 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:23:24,569 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:23:24,695 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:23:24,838 - __main__ - ERROR - Error storing price data: there is no unique or exclusion constraint matching the ON CONFLICT specification
+
+2025-10-22 18:23:24,840 - __main__ - INFO - Running job: Sync account metrics
+2025-10-22 18:23:24,840 - __main__ - ERROR - Error syncing account metrics: name 'margin_level' is not defined
+2025-10-22 18:23:24,840 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:23:24,840 - __main__ - INFO - Synced 0 active trades
+2025-10-22 18:23:33,410 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:23:33,410 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:23:54,873 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:23:54,953 - __main__ - INFO - Synced 0 active trades
+2025-10-22 18:24:03,490 - __main__ - INFO - Running job: Fetch prices
+2025-10-22 18:24:03,653 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:24:03,840 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:24:04,009 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:24:04,200 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:24:04,372 - __main__ - ERROR - Error storing price data: column "timestamp" of relation "price_data" does not exist
+LINE 2:                 INSERT INTO price_data (timestamp, symbol, t...
+                                                ^
+
+2025-10-22 18:24:04,434 - __main__ - INFO - Running job: Sync account metrics
+2025-10-22 18:24:04,450 - __main__ - ERROR - Error syncing account metrics: column "timestamp" of relation "account_metrics" does not exist
+LINE 2:                 INSERT INTO account_metrics (timestamp, bala...
+                                                     ^
+
+2025-10-22 18:24:04,450 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:24:04,450 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:24:34,569 - __main__ - INFO - Running job: Sync active trades
+2025-10-22 18:24:34,569 - __main__ - ERROR - Error syncing active trades: column "closed_at" does not exist
+LINE 4:                     WHERE closed_at IS NULL
+                                  ^
+
+2025-10-22 18:24:42,155 - __main__ - INFO - Shutting down...
+2025-10-22 18:24:42,155 - __main__ - INFO - MT5 Windows Bridge stopped.

@@ -201,11 +201,10 @@ class MT5Bridge:
                 for _, row in df.iterrows()
             ]
 
-            # Insert with ON CONFLICT DO NOTHING to avoid duplicates
+            # Insert price data
             query = """
-                INSERT INTO price_data (timestamp, symbol, timeframe, open, high, low, close, volume)
+                INSERT INTO price_data (time, symbol, timeframe, open, high, low, close, volume)
                 VALUES %s
-                ON CONFLICT (timestamp, symbol, timeframe) DO NOTHING
             """
 
             execute_values(cursor, query, values)
@@ -229,32 +228,35 @@ class MT5Bridge:
             cursor = self.db_conn.cursor()
 
             query = """
-                INSERT INTO account_metrics (timestamp, balance, equity, margin, free_margin, margin_level, profit)
-                VALUES (NOW(), %s, %s, %s, %s, %s, %s)
+                INSERT INTO account_metrics (time, balance, equity, margin, free_margin, profit_today, drawdown, open_positions)
+                VALUES (NOW(), %s, %s, %s, %s, %s, %s, %s)
             """
 
-            margin_level = (account_info.equity / account_info.margin * 100) if account_info.margin > 0 else 0
+            # Get number of open positions
+            positions = mt5.positions_get()
+            open_positions = len(positions) if positions else 0
 
             cursor.execute(query, (
                 account_info.balance,
                 account_info.equity,
                 account_info.margin,
                 account_info.margin_free,
-                margin_level,
-                account_info.profit
+                account_info.profit,
+                0.0,  # drawdown - will be calculated later
+                open_positions
             ))
 
             self.db_conn.commit()
             cursor.close()
 
             # Also cache in Redis for fast access
-            self.redis_client.hmset('account:metrics', {
+            self.redis_client.hset('account:metrics', mapping={
                 'balance': account_info.balance,
                 'equity': account_info.equity,
                 'margin': account_info.margin,
                 'free_margin': account_info.margin_free,
-                'margin_level': margin_level,
                 'profit': account_info.profit,
+                'open_positions': open_positions,
                 'updated_at': datetime.now().isoformat()
             })
 
@@ -273,34 +275,42 @@ class MT5Bridge:
 
             cursor = self.db_conn.cursor()
 
-            # Get current active trade tickets
+            # Delete old trades that are no longer active
             active_tickets = [pos.ticket for pos in positions]
 
-            # Mark trades as closed if they're no longer in MT5
             if active_tickets:
                 cursor.execute("""
-                    UPDATE active_trades
-                    SET closed_at = NOW()
-                    WHERE ticket NOT IN %s AND closed_at IS NULL
+                    DELETE FROM active_trades
+                    WHERE ticket NOT IN %s
                 """, (tuple(active_tickets),))
             else:
-                cursor.execute("""
-                    UPDATE active_trades
-                    SET closed_at = NOW()
-                    WHERE closed_at IS NULL
-                """)
+                cursor.execute("DELETE FROM active_trades")
 
             # Insert or update active positions
             for pos in positions:
+                # Calculate pips for profit
+                point = 0.0001 if 'JPY' not in pos.symbol else 0.01
+                pips = (pos.price_current - pos.price_open) / point
+                if pos.type != mt5.ORDER_TYPE_BUY:
+                    pips = -pips
+
+                # Check if trade already exists, then update, else insert
+                cursor.execute("SELECT COUNT(*) FROM active_trades WHERE ticket = %s", (pos.ticket,))
+                exists = cursor.fetchone()[0] > 0
+
+                if exists:
+                    query = """
+                        UPDATE active_trades
+                        SET current_profit = %s, current_pips = %s, stop_loss = %s, take_profit = %s, last_updated = NOW()
+                        WHERE ticket = %s
+                    """
+                    cursor.execute(query, (pos.profit, pips, pos.sl if pos.sl > 0 else None, pos.tp if pos.tp > 0 else None, pos.ticket))
+                    continue
+
                 query = """
                     INSERT INTO active_trades
-                    (ticket, symbol, type, volume, open_price, current_price, stop_loss, take_profit, profit, opened_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT (ticket) DO UPDATE SET
-                        current_price = EXCLUDED.current_price,
-                        profit = EXCLUDED.profit,
-                        stop_loss = EXCLUDED.stop_loss,
-                        take_profit = EXCLUDED.take_profit
+                    (ticket, symbol, type, lots, open_time, open_price, stop_loss, take_profit, current_profit, current_pips, strategy, last_updated)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
                 """
 
                 cursor.execute(query, (
@@ -308,12 +318,13 @@ class MT5Bridge:
                     pos.symbol,
                     'BUY' if pos.type == mt5.ORDER_TYPE_BUY else 'SELL',
                     pos.volume,
+                    datetime.fromtimestamp(pos.time),
                     pos.price_open,
-                    pos.price_current,
                     pos.sl if pos.sl > 0 else None,
                     pos.tp if pos.tp > 0 else None,
                     pos.profit,
-                    datetime.fromtimestamp(pos.time)
+                    pips,
+                    'manual'  # default strategy
                 ))
 
             self.db_conn.commit()
@@ -343,11 +354,14 @@ class MT5Bridge:
                 if deal.entry not in [mt5.DEAL_ENTRY_IN, mt5.DEAL_ENTRY_OUT]:
                     continue
 
+                # Calculate pips
+                point = 0.0001 if 'JPY' not in deal.symbol else 0.01
+                pips = 0.0  # Will be calculated when we have both entry and exit
+
                 query = """
                     INSERT INTO trade_history
-                    (ticket, symbol, type, volume, open_price, close_price, profit, opened_at, closed_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT (ticket) DO NOTHING
+                    (ticket, symbol, type, lots, open_time, close_time, open_price, close_price, stop_loss, take_profit, profit, pips, strategy, reason)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
 
                 cursor.execute(query, (
@@ -355,11 +369,16 @@ class MT5Bridge:
                     deal.symbol,
                     'BUY' if deal.type == mt5.DEAL_TYPE_BUY else 'SELL',
                     deal.volume,
-                    deal.price,
-                    deal.price,
-                    deal.profit,
                     datetime.fromtimestamp(deal.time),
-                    datetime.fromtimestamp(deal.time)
+                    datetime.fromtimestamp(deal.time),
+                    deal.price,
+                    deal.price,
+                    None,  # stop_loss
+                    None,  # take_profit
+                    deal.profit,
+                    pips,
+                    'manual',  # strategy
+                    None  # reason
                 ))
 
             self.db_conn.commit()
