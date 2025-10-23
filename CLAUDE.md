@@ -338,29 +338,115 @@ For running MT5 natively on Windows instead of Docker:
 3. Install dependencies: `pip install -r requirements.txt`
 4. Copy `.env.example` to `.env` and configure:
    - MT5 credentials (same as Docker mode)
-   - `POSTGRES_HOST`: IP of Linux server (e.g., "192.168.1.100")
+   - `POSTGRES_HOST`: IP of Linux server (e.g., "10.30.90.102")
    - `REDIS_HOST`: IP of Linux server
+   - Forex pairs: `FOREX_PAIRS=EURUSD,GBPUSD,USDJPY,AUDUSD,USDCAD`
+   - Crypto pairs (optional): `CRYPTO_PAIRS=BTCUSD,ETHUSD,LTCUSD,XRPUSD`
+   - Enable crypto: `CRYPTO_ENABLED=true` (or `false` for Forex only)
+
+### Bridge Versions
+
+**V3 (bridge_v3/)** - Modular Architecture (RECOMMENDED):
+- **New modular MVC architecture** with parallel execution
+- 3-4x faster performance via multi-threading
+- Connection pooling for database (prevents resource exhaustion)
+- Priority-based task queue system
+- Easy to extend with new strategies and controllers
+- Built-in health checks and monitoring
+- Production-ready with graceful shutdown
+- UTF-8 logging support (fixes Windows console errors)
+- See `windows-mt5-bridge/BRIDGE_V3_README.md` for complete documentation
+
+**V2 (mt5_bridge_v2.py)** - Forex + Crypto:
+- Integrated Forex and Crypto trading
+- Advanced risk management (10% daily loss limit shared)
+- Crypto strategy with RSI, EMA, MACD, Bollinger Bands, VWAP
+- Independent timeframes for each asset type
+- Position tracking by asset type
+- Safety mode (signals logged, not executed by default)
+- See `windows-mt5-bridge/BRIDGE_V2_README.md` for details
+
+**V1 (mt5_bridge.py)** - Forex Only:
+- Basic price sync and account metrics
+- Forex trading only
+- Simpler configuration
+
+**V2 (mt5_bridge_v2.py)** - Forex + Crypto:
+- Integrated Forex and Crypto trading
+- Advanced risk management (10% daily loss limit shared)
+- Crypto strategy with RSI, EMA, MACD, Bollinger Bands, VWAP
+- Independent timeframes for each asset type
+- Position tracking by asset type
+- Safety mode (signals logged, not executed by default)
+- See `windows-mt5-bridge/BRIDGE_V2_README.md` for details
 
 ### Linux Server Firewall Configuration
 ```bash
 # Allow PostgreSQL from Windows IP
-sudo ufw allow from 192.168.1.XXX to any port 5432
+sudo ufw allow from 10.30.90.XXX to any port 5432
 
 # Allow Redis from Windows IP
-sudo ufw allow from 192.168.1.XXX to any port 6379
+sudo ufw allow from 10.30.90.XXX to any port 6379
 ```
 
 ### Running the Bridge
 ```powershell
-# Run manually
+# Run V3 (Modular Architecture - RECOMMENDED)
+python -m bridge_v3.main
+# or use the launcher
+run_bridge_v3.bat
+
+# Run V2 (Forex + Crypto - Legacy)
+python mt5_bridge_v2.py
+
+# Run V1 (Forex only - Legacy)
 python mt5_bridge.py
 
 # View logs
-Get-Content mt5_bridge.log -Wait -Tail 50
+Get-Content mt5_bridge_v3.log -Wait -Tail 50  # V3
+Get-Content mt5_bridge_v2.log -Wait -Tail 50  # V2
+Get-Content mt5_bridge.log -Wait -Tail 50     # V1
 ```
 
+### Key Files (Windows Bridge)
+
+**V3 (Modular Architecture)**:
+- `bridge_v3/` - Main package directory
+  - `config/` - Configuration management (settings.py, constants.py)
+  - `models/` - Data models (trade.py, account.py, price.py)
+  - `services/` - Service layer (mt5_service.py, database_service.py, redis_service.py)
+  - `controllers/` - Business logic (price_controller.py, trade_controller.py, risk_controller.py, strategy_controller.py)
+  - `workers/` - Parallel execution (task_worker.py, scheduler.py)
+  - `main.py` - Main orchestrator
+- `run_bridge_v3.bat` - Windows launcher script
+- `BRIDGE_V3_README.md` - Complete V3 documentation
+- `.env` - Configuration file (shared with V2/V1)
+
+**V2 (Legacy)**:
+- `mt5_bridge_v2.py` - V2: Integrated Forex + Crypto bridge
+- `crypto_strategy.py` - Crypto trading strategy module
+- `risk_manager.py` - Integrated risk management system
+- `BRIDGE_V2_README.md` - V2 usage guide
+- `CRYPTO_INTEGRATION.md` - Integration guide
+
+**V1 (Legacy)**:
+- `mt5_bridge.py` - V1: Basic Forex bridge
+
+**Common Files**:
+- `.env` - Configuration file (used by all versions)
+- `ENV_CONFIGURATION.md` - Detailed parameter documentation
+- `MT5_TEMPLATE_PROMPT.md` - MT5 visual template guide
+
+### Crypto Strategy Features (V2 Only)
+- **Indicators**: RSI (14), EMA (9,21), MACD (12,26,9), Bollinger Bands (20,2), VWAP
+- **Timeframes**: 5m, 15m, 30m, 1h (configurable)
+- **Trading Hours**: 24/7 with optimal hour detection
+- **Risk**: 2% stop loss, 3.5% take profit per trade
+- **Position Limits**: Max 3 crypto, 3 forex, 5 total positions
+- **Daily Limit**: 10% loss limit (shared between Forex and Crypto)
+
 ### Running as Windows Service
-Use NSSM or Task Scheduler to run mt5_bridge.py automatically at startup. See windows-mt5-bridge/README.md for detailed instructions.
+Use NSSM or Task Scheduler to run mt5_bridge_v2.py automatically at startup. See windows-mt5-bridge/BRIDGE_V2_README.md for detailed instructions.
 
 ## Project Structure
 
@@ -376,8 +462,16 @@ trading-bot/
 │   ├── main.py                    # Core sync logic
 │   └── README_MT5.md              # MT5 integration guide
 ├── windows-mt5-bridge/            # Windows standalone bridge
-│   ├── mt5_bridge.py              # Identical sync logic
-│   └── README.md                  # Windows setup guide
+│   ├── mt5_bridge.py              # V1: Forex only bridge
+│   ├── mt5_bridge_v2.py           # V2: Forex + Crypto integrated bridge
+│   ├── crypto_strategy.py         # Crypto trading strategy
+│   ├── risk_manager.py            # Integrated risk management
+│   ├── .env                       # Configuration (not in git)
+│   ├── ENV_CONFIGURATION.md       # .env parameters guide
+│   ├── BRIDGE_V2_README.md        # V2 usage guide
+│   ├── MT5_TEMPLATE_PROMPT.md     # MT5 visual template
+│   ├── CRYPTO_INTEGRATION.md      # Integration guide
+│   └── test_crypto_live.py        # Test script for crypto signals
 ├── api/
 │   └── main.py                    # FastAPI endpoints
 ├── dashboard/
