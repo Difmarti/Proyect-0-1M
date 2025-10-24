@@ -25329,3 +25329,343 @@ DETAIL:  A field with precision 10, scale 5 must round to an absolute value less
 2025-10-23 21:10:33,979 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
 2025-10-23 21:10:34,053 - bridge_v3.services.database_service - INFO - Synced 0 active trades
 2025-10-23 21:10:34,072 - bridge_v3.controllers.trade_controller - INFO - Synced 0 active trades
+2025-10-23 21:10:34,087 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.04s)
+2025-10-23 21:10:55,150 - __main__ - INFO - Running job: Fetch prices (parallel)
+2025-10-23 21:10:55,150 - __main__ - INFO - Running job: Sync account metrics
+2025-10-23 21:10:55,150 - bridge_v3.workers.task_worker - INFO - Executing task: fetch_prices_parallel (priority: NORMAL)
+2025-10-23 21:10:55,150 - bridge_v3.workers.task_worker - INFO - Executing task: sync_metrics (priority: HIGH)
+2025-10-23 21:10:55,221 - bridge_v3.services.database_service - INFO - Stored account metrics: Balance=1005.97, Equity=1005.97
+2025-10-23 21:10:55,284 - bridge_v3.workers.task_worker - INFO - Task completed: sync_metrics (duration: 0.11s)
+2025-10-23 21:10:58,272 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for EURUSD
+2025-10-23 21:10:58,510 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for GBPUSD
+2025-10-23 21:10:58,598 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDJPY
+2025-10-23 21:10:58,685 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for AUDUSD
+2025-10-23 21:10:59,156 - __main__ - INFO - Running job: Analyze crypto signals
+2025-10-23 21:10:59,156 - bridge_v3.workers.task_worker - INFO - Executing task: analyze_crypto (priority: NORMAL)
+2025-10-23 21:10:59,224 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for ETHUSD
+2025-10-23 21:10:59,333 - bridge_v3.workers.task_worker - INFO - Task completed: analyze_crypto (duration: 0.17s)
+2025-10-23 21:10:59,364 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for LTCUSD
+2025-10-23 21:10:59,855 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for XRPUSD
+2025-10-23 21:11:00,161 - __main__ - INFO - Running job: Update risk metrics
+2025-10-23 21:11:00,161 - bridge_v3.workers.task_worker - INFO - Executing task: update_risk (priority: CRITICAL)
+2025-10-23 21:11:00,173 - bridge_v3.workers.task_worker - INFO - Task completed: update_risk (duration: 0.01s)
+2025-10-23 21:11:00,677 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDCAD
+2025-10-23 21:11:00,692 - bridge_v3.controllers.price_controller - INFO - Parallel price fetch: 9 success, 0 failed (Forex: 5, Crypto: 4)
+2025-10-23 21:11:00,692 - bridge_v3.workers.task_worker - INFO - Task completed: fetch_prices_parallel (duration: 5.53s)
+2025-10-23 21:11:00,962 - __main__ - INFO - Worker Stats - Active: 8, Queued: 0, Completed: 0, Failed: 0
+2025-10-23 21:11:04,168 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:11:04,168 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:11:04,177 - bridge_v3.services.database_service - INFO - Synced 0 active trades
+2025-10-23 21:11:04,177 - bridge_v3.controllers.trade_controller - INFO - Synced 0 active trades
+2025-10-23 21:11:04,177 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.00s)
+2025-10-23 21:11:34,192 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:11:34,192 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:11:34,204 - bridge_v3.services.database_service - INFO - Synced 0 active trades
+2025-10-23 21:11:34,204 - bridge_v3.controllers.trade_controller - INFO - Synced 0 active trades
+2025-10-23 21:11:34,204 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.01s)
+2025-10-23 21:11:55,208 - __main__ - INFO - Running job: Fetch prices (parallel)
+2025-10-23 21:11:55,208 - __main__ - INFO - Running job: Sync account metrics
+2025-10-23 21:11:55,208 - bridge_v3.workers.task_worker - INFO - Executing task: fetch_prices_parallel (priority: NORMAL)
+2025-10-23 21:11:55,270 - bridge_v3.workers.task_worker - INFO - Executing task: sync_metrics (priority: HIGH)
+2025-10-23 21:11:55,426 - bridge_v3.services.database_service - INFO - Stored account metrics: Balance=1005.97, Equity=1005.97
+2025-10-23 21:11:55,489 - bridge_v3.workers.task_worker - INFO - Task completed: sync_metrics (duration: 0.08s)
+2025-10-23 21:11:59,492 - __main__ - INFO - Running job: Analyze crypto signals
+2025-10-23 21:11:59,507 - bridge_v3.workers.task_worker - INFO - Executing task: analyze_crypto (priority: NORMAL)
+2025-10-23 21:11:59,586 - crypto_strategy_relaxed - INFO - 
+LTCUSD - SEÑAL LONG detectada (3/4 condiciones):
+  ❌ RSI: 80.38 < 40
+  ✅ EMA9: 94.46 > EMA21: 94.17
+  ✅ MACD Histogram: 0.09816 > 0
+  ✅ Precio: 94.91 > VWAP: 93.02
+  ✅ Volumen: 795 >= Avg: 769
+            
+2025-10-23 21:11:59,586 - bridge_v3.controllers.strategy_controller - INFO - Crypto signal: LTCUSD - LONG at $94.91
+2025-10-23 21:11:59,649 - bridge_v3.controllers.strategy_controller - INFO - 
+╔══════════════════════════════════════════════════════════╗
+║  Signal Detected: CRYPTO                                     ║
+╠══════════════════════════════════════════════════════════╣
+║  Symbol: LTCUSD                                          ║
+║  Type: LONG                                              ║
+║  Price: $94.91                                          ║
+║  Stop Loss: $93.01                                     ║
+║  Take Profit: $98.23                                   ║
+║  R/R: 1:1.75                                           ║
+║  Confidence: 80.0                                     % ║
+╚══════════════════════════════════════════════════════════╝
+        
+2025-10-23 21:11:59,666 - bridge_v3.controllers.execution_controller - INFO - Position size calculated: 0.01 lots (Risk: $20.12, SL distance: 1.89820)
+2025-10-23 21:11:59,888 - bridge_v3.controllers.execution_controller - INFO - 
+╔══════════════════════════════════════════════════════════╗
+║  ✅ TRADE EXECUTED SUCCESSFULLY                          ║
+╠══════════════════════════════════════════════════════════╣
+║  Ticket: 128143019                                       ║
+║  Symbol: LTCUSD                                          ║
+║  Type: LONG                                              ║
+║  Volume: 0.01                                           ║
+║  Price: $95.01                                         ║
+║  Stop Loss: $93.01                                     ║
+║  Take Profit: $98.23                                   ║
+║  Strategy: crypto                                       ║
+╚══════════════════════════════════════════════════════════╝
+            
+2025-10-23 21:11:59,888 - __main__ - INFO - ✅ Trade OPENED successfully: Ticket 128143019, LTCUSD LONG, Volume 0.01
+2025-10-23 21:11:59,985 - bridge_v3.services.database_service - INFO - Synced 1 active trades
+2025-10-23 21:12:00,005 - bridge_v3.controllers.trade_controller - INFO - Synced 1 active trades
+2025-10-23 21:12:00,036 - bridge_v3.workers.task_worker - INFO - Task completed: analyze_crypto (duration: 0.53s)
+2025-10-23 21:12:00,514 - __main__ - INFO - Running job: Update risk metrics
+2025-10-23 21:12:00,514 - bridge_v3.workers.task_worker - INFO - Executing task: update_risk (priority: CRITICAL)
+2025-10-23 21:12:00,520 - bridge_v3.workers.task_worker - INFO - Task completed: update_risk (duration: 0.01s)
+2025-10-23 21:12:00,692 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for GBPUSD
+2025-10-23 21:12:00,880 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for EURUSD
+2025-10-23 21:12:00,959 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for AUDUSD
+2025-10-23 21:12:00,964 - __main__ - INFO - Worker Stats - Active: 8, Queued: 0, Completed: 0, Failed: 0
+2025-10-23 21:12:01,072 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDJPY
+2025-10-23 21:12:01,911 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for ETHUSD
+2025-10-23 21:12:02,020 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for LTCUSD
+2025-10-23 21:12:02,820 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for XRPUSD
+2025-10-23 21:12:03,550 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDCAD
+2025-10-23 21:12:03,550 - bridge_v3.controllers.price_controller - INFO - Parallel price fetch: 9 success, 0 failed (Forex: 5, Crypto: 4)
+2025-10-23 21:12:03,567 - bridge_v3.workers.task_worker - INFO - Task completed: fetch_prices_parallel (duration: 8.19s)
+2025-10-23 21:12:04,551 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:12:04,560 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:12:04,580 - bridge_v3.services.database_service - INFO - Synced 1 active trades
+2025-10-23 21:12:04,594 - bridge_v3.controllers.trade_controller - INFO - Synced 1 active trades
+2025-10-23 21:12:04,603 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.04s)
+2025-10-23 21:12:34,577 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:12:34,577 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:12:34,583 - bridge_v3.services.database_service - INFO - Synced 1 active trades
+2025-10-23 21:12:34,599 - bridge_v3.controllers.trade_controller - INFO - Synced 1 active trades
+2025-10-23 21:12:34,615 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.03s)
+2025-10-23 21:12:55,591 - __main__ - INFO - Running job: Fetch prices (parallel)
+2025-10-23 21:12:55,598 - __main__ - INFO - Running job: Sync account metrics
+2025-10-23 21:12:55,598 - bridge_v3.workers.task_worker - INFO - Executing task: fetch_prices_parallel (priority: NORMAL)
+2025-10-23 21:12:55,598 - bridge_v3.workers.task_worker - INFO - Executing task: sync_metrics (priority: HIGH)
+2025-10-23 21:12:55,614 - bridge_v3.services.database_service - INFO - Stored account metrics: Balance=1005.97, Equity=1005.96
+2025-10-23 21:12:55,708 - bridge_v3.workers.task_worker - INFO - Task completed: sync_metrics (duration: 0.11s)
+2025-10-23 21:12:59,228 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for GBPUSD
+2025-10-23 21:12:59,482 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDJPY
+2025-10-23 21:12:59,514 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for EURUSD
+2025-10-23 21:12:59,577 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for AUDUSD
+2025-10-23 21:12:59,630 - __main__ - INFO - Running job: Analyze crypto signals
+2025-10-23 21:12:59,641 - bridge_v3.workers.task_worker - INFO - Executing task: analyze_crypto (priority: NORMAL)
+2025-10-23 21:12:59,673 - crypto_strategy_relaxed - INFO - 
+LTCUSD - SEÑAL LONG detectada (3/4 condiciones):
+  ❌ RSI: 80.66 < 40
+  ✅ EMA9: 94.46 > EMA21: 94.18
+  ✅ MACD Histogram: 0.10008 > 0
+  ✅ Precio: 94.94 > VWAP: 93.02
+  ✅ Volumen: 840 >= Avg: 771
+            
+2025-10-23 21:12:59,689 - bridge_v3.controllers.strategy_controller - INFO - Crypto signal: LTCUSD - LONG at $94.94
+2025-10-23 21:12:59,723 - bridge_v3.controllers.strategy_controller - INFO - 
+╔══════════════════════════════════════════════════════════╗
+║  Signal Detected: CRYPTO                                     ║
+╠══════════════════════════════════════════════════════════╣
+║  Symbol: LTCUSD                                          ║
+║  Type: LONG                                              ║
+║  Price: $94.94                                          ║
+║  Stop Loss: $93.04                                     ║
+║  Take Profit: $98.26                                   ║
+║  R/R: 1:1.75                                           ║
+║  Confidence: 80.0                                     % ║
+╚══════════════════════════════════════════════════════════╝
+        
+2025-10-23 21:12:59,768 - bridge_v3.controllers.execution_controller - INFO - Position size calculated: 0.01 lots (Risk: $20.12, SL distance: 1.89880)
+2025-10-23 21:12:59,958 - bridge_v3.controllers.execution_controller - INFO - 
+╔══════════════════════════════════════════════════════════╗
+║  ✅ TRADE EXECUTED SUCCESSFULLY                          ║
+╠══════════════════════════════════════════════════════════╣
+║  Ticket: 128143084                                       ║
+║  Symbol: LTCUSD                                          ║
+║  Type: LONG                                              ║
+║  Volume: 0.01                                           ║
+║  Price: $95.05                                         ║
+║  Stop Loss: $93.04                                     ║
+║  Take Profit: $98.26                                   ║
+║  Strategy: crypto                                       ║
+╚══════════════════════════════════════════════════════════╝
+            
+2025-10-23 21:13:00,036 - __main__ - INFO - ✅ Trade OPENED successfully: Ticket 128143084, LTCUSD LONG, Volume 0.01
+2025-10-23 21:13:00,304 - bridge_v3.services.database_service - INFO - Synced 2 active trades
+2025-10-23 21:13:00,367 - bridge_v3.controllers.trade_controller - INFO - Synced 2 active trades
+2025-10-23 21:13:00,447 - bridge_v3.workers.task_worker - INFO - Task completed: analyze_crypto (duration: 0.81s)
+2025-10-23 21:13:00,606 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for ETHUSD
+2025-10-23 21:13:00,661 - __main__ - INFO - Running job: Update risk metrics
+2025-10-23 21:13:00,692 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for LTCUSD
+2025-10-23 21:13:00,692 - bridge_v3.workers.task_worker - INFO - Executing task: update_risk (priority: CRITICAL)
+2025-10-23 21:13:00,702 - bridge_v3.workers.task_worker - INFO - Task completed: update_risk (duration: 0.00s)
+2025-10-23 21:13:01,016 - __main__ - INFO - Worker Stats - Active: 8, Queued: 0, Completed: 0, Failed: 0
+2025-10-23 21:13:01,433 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for XRPUSD
+2025-10-23 21:13:02,630 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDCAD
+2025-10-23 21:13:02,645 - bridge_v3.controllers.price_controller - INFO - Parallel price fetch: 9 success, 0 failed (Forex: 5, Crypto: 4)
+2025-10-23 21:13:02,645 - bridge_v3.workers.task_worker - INFO - Task completed: fetch_prices_parallel (duration: 7.05s)
+2025-10-23 21:13:04,706 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:13:04,706 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:13:04,723 - bridge_v3.services.database_service - INFO - Synced 2 active trades
+2025-10-23 21:13:04,723 - bridge_v3.controllers.trade_controller - INFO - Synced 2 active trades
+2025-10-23 21:13:04,738 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.03s)
+2025-10-23 21:13:34,819 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:13:34,819 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:13:34,830 - bridge_v3.services.database_service - INFO - Synced 2 active trades
+2025-10-23 21:13:34,830 - bridge_v3.controllers.trade_controller - INFO - Synced 2 active trades
+2025-10-23 21:13:34,845 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.03s)
+2025-10-23 21:13:55,936 - __main__ - INFO - Running job: Fetch prices (parallel)
+2025-10-23 21:13:55,936 - __main__ - INFO - Running job: Sync account metrics
+2025-10-23 21:13:55,936 - bridge_v3.workers.task_worker - INFO - Executing task: fetch_prices_parallel (priority: NORMAL)
+2025-10-23 21:13:55,936 - bridge_v3.workers.task_worker - INFO - Executing task: sync_metrics (priority: HIGH)
+2025-10-23 21:13:55,942 - bridge_v3.services.database_service - INFO - Stored account metrics: Balance=1005.97, Equity=1005.95
+2025-10-23 21:13:55,942 - bridge_v3.workers.task_worker - INFO - Task completed: sync_metrics (duration: 0.01s)
+2025-10-23 21:13:59,976 - __main__ - INFO - Running job: Analyze crypto signals
+2025-10-23 21:14:00,041 - bridge_v3.workers.task_worker - INFO - Executing task: analyze_crypto (priority: NORMAL)
+2025-10-23 21:14:00,220 - crypto_strategy_relaxed - INFO - 
+LTCUSD - SEÑAL LONG detectada (3/4 condiciones):
+  ❌ RSI: 80.10 < 40
+  ✅ EMA9: 94.45 > EMA21: 94.17
+  ✅ MACD Histogram: 0.09625 > 0
+  ✅ Precio: 94.88 > VWAP: 93.02
+  ✅ Volumen: 912 >= Avg: 775
+            
+2025-10-23 21:14:00,223 - bridge_v3.controllers.strategy_controller - INFO - Crypto signal: LTCUSD - LONG at $94.88
+2025-10-23 21:14:00,268 - bridge_v3.controllers.strategy_controller - INFO - 
+╔══════════════════════════════════════════════════════════╗
+║  Signal Detected: CRYPTO                                     ║
+╠══════════════════════════════════════════════════════════╣
+║  Symbol: LTCUSD                                          ║
+║  Type: LONG                                              ║
+║  Price: $94.88                                          ║
+║  Stop Loss: $92.98                                     ║
+║  Take Profit: $98.20                                   ║
+║  R/R: 1:1.75                                           ║
+║  Confidence: 80.0                                     % ║
+╚══════════════════════════════════════════════════════════╝
+        
+2025-10-23 21:14:00,286 - bridge_v3.controllers.execution_controller - INFO - Position size calculated: 0.01 lots (Risk: $20.12, SL distance: 1.89760)
+2025-10-23 21:14:00,536 - bridge_v3.controllers.execution_controller - INFO - 
+╔══════════════════════════════════════════════════════════╗
+║  ✅ TRADE EXECUTED SUCCESSFULLY                          ║
+╠══════════════════════════════════════════════════════════╣
+║  Ticket: 128143150                                       ║
+║  Symbol: LTCUSD                                          ║
+║  Type: LONG                                              ║
+║  Volume: 0.01                                           ║
+║  Price: $95.02                                         ║
+║  Stop Loss: $92.98                                     ║
+║  Take Profit: $98.20                                   ║
+║  Strategy: crypto                                       ║
+╚══════════════════════════════════════════════════════════╝
+            
+2025-10-23 21:14:00,551 - __main__ - INFO - ✅ Trade OPENED successfully: Ticket 128143150, LTCUSD LONG, Volume 0.01
+2025-10-23 21:14:00,884 - bridge_v3.services.database_service - INFO - Synced 3 active trades
+2025-10-23 21:14:00,899 - bridge_v3.controllers.trade_controller - INFO - Synced 3 active trades
+2025-10-23 21:14:00,931 - bridge_v3.workers.task_worker - INFO - Task completed: analyze_crypto (duration: 0.81s)
+2025-10-23 21:14:01,076 - __main__ - INFO - Worker Stats - Active: 8, Queued: 0, Completed: 0, Failed: 0
+2025-10-23 21:14:01,092 - __main__ - INFO - Running job: Update risk metrics
+2025-10-23 21:14:01,139 - bridge_v3.workers.task_worker - INFO - Executing task: update_risk (priority: CRITICAL)
+2025-10-23 21:14:01,155 - bridge_v3.workers.task_worker - INFO - Task completed: update_risk (duration: 0.02s)
+2025-10-23 21:14:01,488 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for GBPUSD
+2025-10-23 21:14:01,723 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for EURUSD
+2025-10-23 21:14:01,833 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for AUDUSD
+2025-10-23 21:14:01,973 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDJPY
+2025-10-23 21:14:03,021 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for ETHUSD
+2025-10-23 21:14:03,101 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for LTCUSD
+2025-10-23 21:14:03,567 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for XRPUSD
+2025-10-23 21:14:04,239 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDCAD
+2025-10-23 21:14:04,239 - bridge_v3.controllers.price_controller - INFO - Parallel price fetch: 9 success, 0 failed (Forex: 5, Crypto: 4)
+2025-10-23 21:14:04,239 - bridge_v3.workers.task_worker - INFO - Task completed: fetch_prices_parallel (duration: 8.30s)
+2025-10-23 21:14:05,189 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:14:05,189 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:14:05,194 - bridge_v3.services.database_service - INFO - Synced 3 active trades
+2025-10-23 21:14:05,210 - bridge_v3.controllers.trade_controller - INFO - Synced 3 active trades
+2025-10-23 21:14:05,210 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.02s)
+2025-10-23 21:14:35,217 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:14:35,217 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:14:35,227 - bridge_v3.services.database_service - INFO - Synced 3 active trades
+2025-10-23 21:14:35,243 - bridge_v3.controllers.trade_controller - INFO - Synced 3 active trades
+2025-10-23 21:14:35,243 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.03s)
+2025-10-23 21:14:56,265 - __main__ - INFO - Running job: Fetch prices (parallel)
+2025-10-23 21:14:56,265 - __main__ - INFO - Running job: Sync account metrics
+2025-10-23 21:14:56,265 - bridge_v3.workers.task_worker - INFO - Executing task: fetch_prices_parallel (priority: NORMAL)
+2025-10-23 21:14:56,265 - bridge_v3.workers.task_worker - INFO - Executing task: sync_metrics (priority: HIGH)
+2025-10-23 21:14:56,279 - bridge_v3.services.database_service - INFO - Stored account metrics: Balance=1005.97, Equity=1005.94
+2025-10-23 21:14:56,357 - bridge_v3.workers.task_worker - INFO - Task completed: sync_metrics (duration: 0.09s)
+2025-10-23 21:15:00,280 - __main__ - INFO - Running job: Analyze crypto signals
+2025-10-23 21:15:00,285 - bridge_v3.workers.task_worker - INFO - Executing task: analyze_crypto (priority: NORMAL)
+2025-10-23 21:15:00,332 - crypto_strategy_relaxed - INFO - 
+ETHUSD - SEÑAL LONG detectada (3/4 condiciones):
+  ❌ RSI: 68.22 < 40
+  ✅ EMA9: 3870.03 > EMA21: 3863.10
+  ✅ MACD Histogram: 3.73683 > 0
+  ✅ Precio: 3878.15 > VWAP: 3844.38
+  ✅ Volumen: 3452 >= Avg: 3267
+            
+2025-10-23 21:15:00,332 - bridge_v3.controllers.strategy_controller - INFO - Crypto signal: ETHUSD - LONG at $3878.15
+2025-10-23 21:15:00,410 - crypto_strategy_relaxed - INFO - 
+LTCUSD - SEÑAL LONG detectada (3/4 condiciones):
+  ❌ RSI: 80.57 < 40
+  ✅ EMA9: 94.46 > EMA21: 94.17
+  ✅ MACD Histogram: 0.09944 > 0
+  ✅ Precio: 94.93 > VWAP: 93.03
+  ✅ Volumen: 962 >= Avg: 778
+            
+2025-10-23 21:15:00,410 - bridge_v3.controllers.strategy_controller - INFO - Crypto signal: LTCUSD - LONG at $94.93
+2025-10-23 21:15:00,441 - __main__ - WARNING - ⚠️ Cannot trade ETHUSD: Max crypto positions reached (3)
+2025-10-23 21:15:00,457 - __main__ - WARNING - ⚠️ Cannot trade LTCUSD: Max crypto positions reached (3)
+2025-10-23 21:15:00,457 - bridge_v3.workers.task_worker - INFO - Task completed: analyze_crypto (duration: 0.17s)
+2025-10-23 21:15:01,144 - __main__ - INFO - Worker Stats - Active: 8, Queued: 0, Completed: 0, Failed: 0
+2025-10-23 21:15:01,288 - __main__ - INFO - Running job: Update risk metrics
+2025-10-23 21:15:01,288 - bridge_v3.workers.task_worker - INFO - Executing task: update_risk (priority: CRITICAL)
+2025-10-23 21:15:01,303 - bridge_v3.workers.task_worker - INFO - Task completed: update_risk (duration: 0.02s)
+2025-10-23 21:15:02,298 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for EURUSD
+2025-10-23 21:15:02,658 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for GBPUSD
+2025-10-23 21:15:02,893 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for AUDUSD
+2025-10-23 21:15:03,083 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDJPY
+2025-10-23 21:15:03,880 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for ETHUSD
+2025-10-23 21:15:04,053 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for LTCUSD
+2025-10-23 21:15:04,509 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for XRPUSD
+2025-10-23 21:15:05,300 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:15:05,300 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:15:05,323 - bridge_v3.services.database_service - INFO - Synced 3 active trades
+2025-10-23 21:15:05,338 - bridge_v3.controllers.trade_controller - INFO - Synced 3 active trades
+2025-10-23 21:15:05,338 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.04s)
+2025-10-23 21:15:05,558 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDCAD
+2025-10-23 21:15:05,573 - bridge_v3.controllers.price_controller - INFO - Parallel price fetch: 9 success, 0 failed (Forex: 5, Crypto: 4)
+2025-10-23 21:15:05,573 - bridge_v3.workers.task_worker - INFO - Task completed: fetch_prices_parallel (duration: 9.31s)
+2025-10-23 21:15:35,316 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:15:35,316 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:15:35,332 - bridge_v3.services.database_service - INFO - Synced 3 active trades
+2025-10-23 21:15:35,348 - bridge_v3.controllers.trade_controller - INFO - Synced 3 active trades
+2025-10-23 21:15:35,348 - bridge_v3.workers.task_worker - INFO - Task completed: sync_trades (duration: 0.03s)
+2025-10-23 21:15:56,453 - __main__ - INFO - Running job: Fetch prices (parallel)
+2025-10-23 21:15:56,456 - __main__ - INFO - Running job: Sync account metrics
+2025-10-23 21:15:56,456 - bridge_v3.workers.task_worker - INFO - Executing task: fetch_prices_parallel (priority: NORMAL)
+2025-10-23 21:15:56,456 - bridge_v3.workers.task_worker - INFO - Executing task: sync_metrics (priority: HIGH)
+2025-10-23 21:15:56,472 - bridge_v3.services.database_service - ERROR - Error storing account metrics: connection already closed
+2025-10-23 21:16:00,467 - __main__ - INFO - Running job: Analyze crypto signals
+2025-10-23 21:16:00,467 - bridge_v3.workers.task_worker - INFO - Executing task: analyze_crypto (priority: NORMAL)
+2025-10-23 21:16:00,517 - bridge_v3.workers.task_worker - INFO - Task completed: analyze_crypto (duration: 0.05s)
+2025-10-23 21:16:01,145 - __main__ - INFO - Worker Stats - Active: 8, Queued: 0, Completed: 0, Failed: 0
+2025-10-23 21:16:01,469 - __main__ - INFO - Running job: Update risk metrics
+2025-10-23 21:16:01,472 - bridge_v3.workers.task_worker - INFO - Executing task: update_risk (priority: CRITICAL)
+2025-10-23 21:16:05,477 - __main__ - INFO - Running job: Sync active trades
+2025-10-23 21:16:05,479 - bridge_v3.workers.task_worker - INFO - Executing task: sync_trades (priority: HIGH)
+2025-10-23 21:16:07,109 - bridge_v3.services.database_service - INFO - Synced 3 active trades
+2025-10-23 21:16:16,817 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for EURUSD
+2025-10-23 21:16:16,826 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for GBPUSD
+2025-10-23 21:16:17,195 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDJPY
+2025-10-23 21:16:17,271 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for AUDUSD
+2025-10-23 21:16:18,668 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for LTCUSD
+2025-10-23 21:16:18,716 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for ETHUSD
+2025-10-23 21:16:18,795 - __main__ - INFO - Received signal 2
+2025-10-23 21:16:18,817 - __main__ - INFO - ======================================================================
+2025-10-23 21:16:18,859 - __main__ - INFO -                      Shutting Down MT5 Bridge V3                      
+2025-10-23 21:16:18,892 - __main__ - INFO - ======================================================================
+2025-10-23 21:16:19,404 - bridge_v3.services.database_service - INFO - Stored 200/200 price records for XRPUSD
+2025-10-23 21:16:19,493 - __main__ - INFO - Received signal 2
+2025-10-23 21:16:20,208 - bridge_v3.services.database_service - INFO - Stored 1000/1000 price records for USDCAD
+2025-10-23 21:16:20,208 - bridge_v3.controllers.price_controller - INFO - Parallel price fetch: 9 success, 0 failed (Forex: 5, Crypto: 4)
+2025-10-23 21:16:20,223 - bridge_v3.workers.task_worker - INFO - Task completed: fetch_prices_parallel (duration: 23.75s)
+2025-10-23 21:16:26,520 - bridge_v3.services.redis_service - ERROR - Error setting hash account:metrics: Timeout connecting to server
+2025-10-23 21:16:26,520 - bridge_v3.workers.task_worker - INFO - Task completed: sync_metrics (duration: 30.05s)
+2025-10-23 21:16:31,864 - bridge_v3.services.redis_service - ERROR - Error setting hash risk:metrics: Timeout connecting to server
+2025-10-23 21:16:31,864 - bridge_v3.workers.task_worker - INFO - Task completed: update_risk (duration: 30.39s)
+2025-10-23 21:16:31,864 - __main__ - INFO - Received signal 2

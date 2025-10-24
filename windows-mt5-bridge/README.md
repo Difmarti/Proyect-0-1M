@@ -1,10 +1,12 @@
-# Windows MT5 Bridge - Trading Bot
+# Windows MT5 Bridge V3
 
-Bridges MetaTrader 5 (running natively on Windows) with the Linux-based trading infrastructure.
+**Production-ready MetaTrader 5 bridge with modular architecture**
+
+Connects MetaTrader 5 (Windows) to Linux-based trading infrastructure (PostgreSQL + Redis).
+
+---
 
 ## Quick Start
-
-### Recommended: Use V3 (Modular Architecture)
 
 ```powershell
 # 1. Configure (first time only)
@@ -12,103 +14,135 @@ copy .env.example .env
 # Edit .env with your credentials
 
 # 2. Run
-python -m bridge_v3.main
-
-# Or use the launcher
 run_bridge_v3.bat
-```
 
-## Available Versions
-
-### 🚀 V3 - Modular Architecture (RECOMMENDED)
-
-**Modern, scalable, production-ready**
-
-- ✅ **3-4x faster** than V2 (parallel execution)
-- ✅ **Modular MVC architecture** (easy to extend)
-- ✅ **Connection pooling** (no database exhaustion)
-- ✅ **Priority task queue** (critical tasks first)
-- ✅ **Built-in monitoring** (worker statistics)
-- ✅ **UTF-8 logging** (Windows console friendly)
-- ✅ **Graceful shutdown** (no data loss)
-
-**Documentation:**
-- [Complete Guide](BRIDGE_V3_README.md)
-- [Architecture Diagrams](ARCHITECTURE_DIAGRAM.md)
-- [Migration Guide](MIGRATION_GUIDE.md)
-
-**Run:**
-```powershell
+# Or directly with Python
 python -m bridge_v3.main
 ```
 
 ---
 
-### V2 - Integrated Forex + Crypto (Legacy)
+## Features
 
-**Monolithic, works but slower**
-
-- Forex + Crypto trading
-- 10% daily loss limit
-- Safety mode (signals logged, not executed)
-
-**Documentation:**
-- [V2 Guide](BRIDGE_V2_README.md)
-- [Crypto Integration](CRYPTO_INTEGRATION.md)
-
-**Run:**
-```powershell
-python mt5_bridge_v2.py
-```
+- ✅ **Modular MVC Architecture** - Clean, maintainable code
+- ✅ **Parallel Execution** - 3-4x faster with ThreadPoolExecutor
+- ✅ **Connection Pooling** - Efficient PostgreSQL connections
+- ✅ **Automatic Trading** - Executes crypto strategy signals
+- ✅ **Multi-Asset Support** - Forex + Cryptocurrency
+- ✅ **Production Ready** - Error handling, logging, graceful shutdown
+- ✅ **UTF-8 Compatible** - Works perfectly on Windows console
 
 ---
 
-### V1 - Basic Forex (Legacy)
+## Architecture
 
-**Simplest version, Forex only**
-
-- Basic price sync
-- Account metrics
-- Forex trading only
-
-**Run:**
-```powershell
-python mt5_bridge.py
 ```
+bridge_v3/
+├── config/       # Configuration management
+├── models/       # Data models (Trade, Account, Price)
+├── services/     # External services (MT5, Database, Redis)
+├── controllers/  # Business logic (Price, Trade, Risk, Strategy)
+├── workers/      # Task management (Parallel execution)
+└── main.py       # Main orchestrator
+```
+
+See [ARCHITECTURE_DIAGRAM.md](ARCHITECTURE_DIAGRAM.md) for detailed diagrams.
 
 ---
 
-## Feature Comparison
+## Configuration
 
-| Feature | V1 | V2 | V3 |
-|---------|----|----|-----|
-| **Forex Trading** | ✅ | ✅ | ✅ |
-| **Crypto Trading** | ❌ | ✅ | ✅ |
-| **Parallel Execution** | ❌ | ❌ | ✅ |
-| **Connection Pooling** | ❌ | ❌ | ✅ |
-| **Modular Architecture** | ❌ | ❌ | ✅ |
-| **Priority Tasks** | ❌ | ❌ | ✅ |
-| **Performance** | Slow | Medium | **Fast** |
-| **Extensibility** | Hard | Medium | **Easy** |
-| **Production Ready** | Basic | Good | **Excellent** |
+Edit `.env` file:
 
-## Documentation Index
+```env
+# MT5 Credentials
+MT5_ACCOUNT=your_account
+MT5_PASSWORD=your_password
+MT5_SERVER=your_server
+
+# Linux Server
+POSTGRES_HOST=10.30.90.102
+REDIS_HOST=10.30.90.102
+
+# Trading Pairs
+CRYPTO_PAIRS=BTCUSD,ETHUSD,LTCUSD,XRPUSD
+FOREX_PAIRS=EURUSD,GBPUSD,USDJPY,AUDUSD,USDCAD
+
+# Risk Management
+MAX_DAILY_LOSS_PCT=10.0
+CRYPTO_STOP_LOSS_PCT=2.0
+CRYPTO_TAKE_PROFIT_PCT=3.5
+```
+
+See [ENV_CONFIGURATION.md](ENV_CONFIGURATION.md) for all parameters.
+
+---
+
+## Trading Strategy
+
+Uses **relaxed crypto strategy** with technical indicators:
+
+- **RSI(14)** - Oversold < 40, Overbought > 60
+- **EMA(9/21)** - Fast/Slow crossover
+- **MACD(12/26/9)** - Histogram direction
+- **Bollinger Bands(20,2)** - Price extremes
+- **VWAP** - Volume-weighted average
+
+**Signal Rules:**
+- **LONG:** 3 of 4 conditions met
+- **SHORT:** 3 of 4 conditions met
+
+**Risk Management:**
+- Stop Loss: 2%
+- Take Profit: 3.5%
+- Risk/Reward: 1:1.75
+- Daily Loss Limit: 10%
+
+---
+
+## Documentation
 
 | Document | Description |
 |----------|-------------|
-| [BRIDGE_V3_README.md](BRIDGE_V3_README.md) | Complete V3 documentation |
-| [ARCHITECTURE_DIAGRAM.md](ARCHITECTURE_DIAGRAM.md) | Visual architecture diagrams |
-| [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) | Migrate from V2 to V3 |
-| [BRIDGE_V2_README.md](BRIDGE_V2_README.md) | V2 documentation (legacy) |
-| [ENV_CONFIGURATION.md](ENV_CONFIGURATION.md) | Environment variable reference |
-| [CRYPTO_INTEGRATION.md](CRYPTO_INTEGRATION.md) | Crypto trading guide (V2) |
+| [BRIDGE_V3_README.md](BRIDGE_V3_README.md) | Complete V3 guide |
+| [ARCHITECTURE_DIAGRAM.md](ARCHITECTURE_DIAGRAM.md) | System architecture |
+| [EXECUTION_GUIDE.md](EXECUTION_GUIDE.md) | Enable/disable trading |
+| [ENV_CONFIGURATION.md](ENV_CONFIGURATION.md) | Configuration reference |
 
 ---
 
-**Ready to start?**
+## Monitoring
 
 ```powershell
-python -m bridge_v3.main
+# View live logs
+Get-Content mt5_bridge_v3.log -Wait -Tail 50
+
+# Check for errors
+Get-Content mt5_bridge_v3.log | Select-String "ERROR"
 ```
 
-🚀 **Happy Trading!**
+---
+
+## Files
+
+- **`bridge_v3/`** - Main bridge code (modular)
+- **`run_bridge_v3.bat`** - Launcher script
+- **`crypto_strategy_relaxed.py`** - Trading strategy
+- **`.env`** - Configuration (create from .env.example)
+- **`mt5_bridge_v3.log`** - Activity log (generated)
+
+---
+
+## Support
+
+See documentation files for detailed guides:
+- Installation issues → BRIDGE_V3_README.md
+- Trading execution → EXECUTION_GUIDE.md
+- Configuration → ENV_CONFIGURATION.md
+- Architecture → ARCHITECTURE_DIAGRAM.md
+
+---
+
+**Version:** 3.0.0
+**Status:** Production Ready
+**Last Updated:** 2025-10-23
