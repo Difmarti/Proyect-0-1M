@@ -408,6 +408,37 @@ Get-Content mt5_bridge_v2.log -Wait -Tail 50  # V2
 Get-Content mt5_bridge.log -Wait -Tail 50     # V1
 ```
 
+### Monitoring Tools (V3 Only)
+
+Bridge V3 includes real-time monitoring tools for analyzing trades and performance:
+
+```powershell
+# Monitor trade signals and operations (analyzes log file)
+monitor_live.bat
+# Shows alerts when:
+# - Signals are detected (LONG/SHORT)
+# - Trades are opened successfully
+# - Trades fail (with solutions)
+# - Positions are closed
+# - Risk warnings are triggered
+
+# Dashboard with statistics (queries database)
+dashboard_live.bat
+# Shows real-time:
+# - Account metrics (balance, equity, profit)
+# - Active trades with current P&L
+# - Today's statistics (win rate, total profit)
+# - Performance by symbol (last 7 days)
+# Updates every 5 seconds
+
+# Run both for complete monitoring
+# Window 1: run_bridge_v3.bat (the bridge)
+# Window 2: monitor_live.bat (trade alerts)
+# Window 3: dashboard_live.bat (statistics)
+```
+
+See `windows-mt5-bridge/MONITORING_TOOLS.md` for detailed documentation.
+
 ### Key Files (Windows Bridge)
 
 **V3 (Modular Architecture)**:

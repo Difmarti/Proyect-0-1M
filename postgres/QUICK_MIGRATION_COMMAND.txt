@@ -1,0 +1,61 @@
+================================================================================
+COMANDO RÁPIDO PARA MIGRACIÓN - COPIAR Y PEGAR EN SERVIDOR LINUX
+================================================================================
+
+PASO 1: Detener el bot
+-----------------------
+cd /ruta/al/proyecto && docker-compose down
+
+
+PASO 2: Actualizar repositorio
+-------------------------------
+git pull origin main
+
+
+PASO 3: Ejecutar migración (TODO EN UNA LÍNEA)
+-----------------------------------------------
+docker-compose up -d timescaledb && sleep 5 && docker exec -i trading_timescaledb psql -U trading_user -d trading_db < postgres/migrate_to_v2.sql
+
+
+PASO 4: Verificar migración exitosa
+------------------------------------
+docker exec -it trading_timescaledb psql -U trading_user -d trading_db -c "SELECT * FROM schema_version;"
+
+
+PASO 5: Reiniciar bot
+----------------------
+docker-compose up -d
+
+
+PASO 6: Monitorear logs
+------------------------
+docker-compose logs -f trading_bridge | grep -E "Stored|Synced|ERROR"
+
+
+================================================================================
+COMANDO COMPLETO (COPIA TODA ESTA LÍNEA)
+================================================================================
+
+cd /ruta/al/proyecto && docker-compose down && git pull origin main && docker-compose up -d timescaledb && sleep 5 && docker exec -i trading_timescaledb psql -U trading_user -d trading_db < postgres/migrate_to_v2.sql && docker exec -it trading_timescaledb psql -U trading_user -d trading_db -c "SELECT * FROM schema_version;" && docker-compose up -d && echo "✅ Migración completada! Monitoreando logs..." && docker-compose logs -f trading_bridge
+
+
+================================================================================
+NOTA: Reemplaza "/ruta/al/proyecto" con la ruta real, por ejemplo:
+      - /home/usuario/trading-bot
+      - /opt/trading-bot
+================================================================================
+
+VERIFICACIÓN POST-MIGRACIÓN:
+----------------------------
+# Verificar que NO haya errores de overflow
+docker-compose logs trading_bridge | grep "numeric field overflow"
+# (NO debería retornar nada)
+
+# Ver precios de crypto sincronizándose
+docker exec -it trading_timescaledb psql -U trading_user -d trading_db -c "SELECT symbol, close, time FROM price_data WHERE symbol IN ('BTCUSD', 'ETHUSD') AND time >= NOW() - INTERVAL '5 minutes' ORDER BY time DESC LIMIT 10;"
+
+# Ver schema version (debería ser 2)
+docker exec -it trading_timescaledb psql -U trading_user -d trading_db -c "SELECT * FROM schema_version;"
+
+
+================================================================================

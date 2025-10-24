@@ -1,0 +1,194 @@
+================================================================================
+🚀 PROMPT PARA EJECUTAR EN SERVIDOR LINUX
+================================================================================
+
+INSTRUCCIÓN: Copia y pega EXACTAMENTE estos comandos en tu terminal SSH del
+servidor Linux (10.30.90.102) después de hacer git push desde Windows.
+
+================================================================================
+PASO 1: IDENTIFICAR LA RUTA DEL PROYECTO
+================================================================================
+
+Primero, encuentra dónde está instalado el proyecto:
+
+    pwd
+    ls -la
+
+Si no estás en el directorio del proyecto, navega a él:
+
+    cd /home/usuario/trading-bot
+    # O la ruta donde tengas el proyecto
+
+================================================================================
+PASO 2: COMANDO DE MIGRACIÓN COMPLETO (TODO EN UNA LÍNEA)
+================================================================================
+
+COPIA Y PEGA ESTA LÍNEA COMPLETA:
+
+docker-compose down && git pull origin main && docker-compose up -d timescaledb && sleep 5 && docker exec -i trading_timescaledb psql -U trading_user -d trading_db < postgres/migrate_to_v2.sql && echo "✅ Verificando migración..." && docker exec -it trading_timescaledb psql -U trading_user -d trading_db -c "SELECT * FROM schema_version;" && docker-compose up -d && echo "✅ Migración completada! Monitoreando logs..." && docker-compose logs -f trading_bridge
+
+================================================================================
+¿QUÉ HACE ESTE COMANDO?
+================================================================================
+
+1. docker-compose down
+   → Detiene todos los servicios
+
+2. git pull origin main
+   → Descarga los últimos cambios del repositorio
+
+3. docker-compose up -d timescaledb
+   → Inicia solo PostgreSQL
+
+4. sleep 5
+   → Espera 5 segundos a que PostgreSQL esté listo
+
+5. docker exec -i trading_timescaledb psql ... < migrate_to_v2.sql
+   → Ejecuta el script de migración
+
+6. docker exec -it ... "SELECT * FROM schema_version;"
+   → Verifica que la migración funcionó (debería mostrar version = 2)
+
+7. docker-compose up -d
+   → Reinicia todos los servicios
+
+8. docker-compose logs -f trading_bridge
+   → Muestra los logs en tiempo real
+
+================================================================================
+SALIDA ESPERADA
+================================================================================
+
+Deberías ver algo como esto:
+
+==================================================
+STEP 1: Creating backup tables...
+==================================================
+Backups created successfully!
+
+==================================================
+STEP 2: Updating price_data columns...
+==================================================
+price_data updated: DECIMAL(10,5) → DECIMAL(12,5)
+
+...
+
+==================================================
+MIGRATION COMPLETED SUCCESSFULLY!
+==================================================
+
+✅ Verificando migración...
+
+ version |                    description
+---------+----------------------------------------------------
+       2 | Support for cryptocurrency prices - DECIMAL(12,2)
+
+✅ Migración completada! Monitoreando logs...
+
+INFO - MT5 connection initialized successfully
+INFO - Stored 1000/1000 price records for BTCUSD
+INFO - Synced 3 active trades
+
+================================================================================
+VERIFICACIÓN MANUAL (SI QUIERES REVISAR PASO A PASO)
+================================================================================
+
+Si prefieres ejecutar cada paso manualmente:
+
+# 1. Detener bot
+docker-compose down
+
+# 2. Actualizar repo
+git pull origin main
+
+# 3. Verificar que el archivo existe
+ls -la postgres/migrate_to_v2.sql
+
+# 4. Iniciar PostgreSQL
+docker-compose up -d timescaledb
+
+# 5. Esperar
+sleep 5
+
+# 6. Ejecutar migración
+docker exec -i trading_timescaledb psql -U trading_user -d trading_db < postgres/migrate_to_v2.sql
+
+# 7. Verificar versión
+docker exec -it trading_timescaledb psql -U trading_user -d trading_db -c "SELECT * FROM schema_version;"
+
+# Debería mostrar:
+# version | 2
+
+# 8. Reiniciar todo
+docker-compose up -d
+
+# 9. Ver logs
+docker-compose logs -f trading_bridge
+
+================================================================================
+VERIFICACIÓN POST-MIGRACIÓN
+================================================================================
+
+# 1. Verificar que NO haya errores de overflow
+docker-compose logs trading_bridge | grep "numeric field overflow"
+
+# Resultado esperado: VACÍO (sin resultados)
+
+# 2. Verificar precios de BTCUSD sincronizándose
+docker exec -it trading_timescaledb psql -U trading_user -d trading_db -c "SELECT symbol, close, time FROM price_data WHERE symbol = 'BTCUSD' AND time >= NOW() - INTERVAL '5 minutes' ORDER BY time DESC LIMIT 5;"
+
+# Debería mostrar precios como:
+# BTCUSD | 43250.50 | 2025-10-23 20:05:00
+
+# 3. Verificar que el bot esté corriendo
+docker-compose ps
+
+# Todos los servicios deberían estar "Up"
+
+================================================================================
+SOLUCIÓN DE PROBLEMAS
+================================================================================
+
+ERROR: "No such file or directory: postgres/migrate_to_v2.sql"
+SOLUCIÓN:
+    - Verifica que hiciste git pull
+    - Verifica que estás en el directorio correcto
+    - Ejecuta: ls postgres/migrate_to_v2.sql
+
+ERROR: "relation 'price_data' does not exist"
+SOLUCIÓN:
+    - La base de datos no está inicializada
+    - Ejecuta: docker exec -i trading_timescaledb psql -U trading_user -d trading_db < postgres/init.sql
+
+ERROR: "permission denied"
+SOLUCIÓN:
+    - Usa postgres superuser:
+    - docker exec -it trading_timescaledb psql -U postgres -d trading_db
+
+ERROR: El bot sigue mostrando "numeric overflow"
+SOLUCIÓN:
+    1. docker-compose down
+    2. docker-compose up -d timescaledb
+    3. docker exec -i trading_timescaledb psql -U trading_user -d trading_db < postgres/migrate_to_v2.sql
+    4. docker-compose up -d
+
+================================================================================
+PARA DETENER EL MONITOREO DE LOGS
+================================================================================
+
+Presiona: Ctrl+C
+
+(Esto solo detiene el monitoreo, NO detiene el bot)
+
+================================================================================
+DOCUMENTACIÓN COMPLETA
+================================================================================
+
+Para más detalles, revisa estos archivos en el repositorio:
+
+- postgres/MIGRATION_INSTRUCTIONS.md  → Guía detallada paso a paso
+- postgres/README.md                   → Documentación del schema
+- CHANGELOG_DATABASE_V2.md             → Historial de cambios
+- RESUMEN_ACTUALIZACION.md             → Resumen ejecutivo
+
+================================================================================

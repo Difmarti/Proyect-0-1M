@@ -2,13 +2,14 @@
 CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 
 -- Create OHLCV table for price data
+-- UPDATED: Changed DECIMAL(10,5) to DECIMAL(12,5) to support crypto prices (BTCUSD ~$43,000)
 CREATE TABLE IF NOT EXISTS price_data (
     time        TIMESTAMPTZ NOT NULL,
     symbol      TEXT NOT NULL,
-    open        DECIMAL(10, 5) NOT NULL,
-    high        DECIMAL(10, 5) NOT NULL,
-    low         DECIMAL(10, 5) NOT NULL,
-    close       DECIMAL(10, 5) NOT NULL,
+    open        DECIMAL(12, 5) NOT NULL,  -- Supports up to $9,999,999.99999
+    high        DECIMAL(12, 5) NOT NULL,
+    low         DECIMAL(12, 5) NOT NULL,
+    close       DECIMAL(12, 5) NOT NULL,
     volume      DECIMAL(18, 8) NOT NULL,
     timeframe   TEXT NOT NULL
 );
@@ -20,6 +21,7 @@ SELECT create_hypertable('price_data', 'time');
 CREATE INDEX IF NOT EXISTS idx_price_data_symbol_time ON price_data (symbol, time DESC);
 
 -- Create table for active trades
+-- UPDATED: Changed price columns to DECIMAL(12,2) for crypto support
 CREATE TABLE IF NOT EXISTS active_trades (
     trade_id        BIGSERIAL PRIMARY KEY,
     ticket          BIGINT NOT NULL UNIQUE,
@@ -27,16 +29,17 @@ CREATE TABLE IF NOT EXISTS active_trades (
     type            TEXT NOT NULL, -- 'BUY' or 'SELL'
     lots            DECIMAL(10, 2) NOT NULL,
     open_time       TIMESTAMPTZ NOT NULL,
-    open_price      DECIMAL(10, 5) NOT NULL,
-    stop_loss       DECIMAL(10, 5),
-    take_profit     DECIMAL(10, 5),
-    current_profit  DECIMAL(10, 2),
+    open_price      DECIMAL(12, 2) NOT NULL,  -- Supports up to $9,999,999.99
+    stop_loss       DECIMAL(12, 2),
+    take_profit     DECIMAL(12, 2),
+    current_profit  DECIMAL(12, 2),           -- Supports larger profit/loss values
     current_pips    DECIMAL(10, 1),
     strategy        TEXT,
     last_updated    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create table for closed trades
+-- UPDATED: Changed price columns to DECIMAL(12,2) for crypto support
 CREATE TABLE IF NOT EXISTS trade_history (
     trade_id        BIGSERIAL PRIMARY KEY,
     ticket          BIGINT NOT NULL,
@@ -45,11 +48,11 @@ CREATE TABLE IF NOT EXISTS trade_history (
     lots            DECIMAL(10, 2) NOT NULL,
     open_time       TIMESTAMPTZ NOT NULL,
     close_time      TIMESTAMPTZ NOT NULL,
-    open_price      DECIMAL(10, 5) NOT NULL,
-    close_price     DECIMAL(10, 5) NOT NULL,
-    stop_loss       DECIMAL(10, 5),
-    take_profit     DECIMAL(10, 5),
-    profit          DECIMAL(10, 2) NOT NULL,
+    open_price      DECIMAL(12, 2) NOT NULL,  -- Supports up to $9,999,999.99
+    close_price     DECIMAL(12, 2) NOT NULL,
+    stop_loss       DECIMAL(12, 2),
+    take_profit     DECIMAL(12, 2),
+    profit          DECIMAL(12, 2) NOT NULL,  -- Supports larger profit/loss values
     pips            DECIMAL(10, 1) NOT NULL,
     strategy        TEXT,
     reason          TEXT
@@ -59,17 +62,26 @@ CREATE TABLE IF NOT EXISTS trade_history (
 CREATE INDEX IF NOT EXISTS idx_trade_history_time ON trade_history (close_time DESC);
 
 -- Create table for bot decisions and signals
+-- UPDATED: Added more fields for better signal tracking and debugging
 CREATE TABLE IF NOT EXISTS trading_signals (
     signal_id       BIGSERIAL,
     time            TIMESTAMPTZ NOT NULL,
     symbol          TEXT NOT NULL,
-    type            TEXT NOT NULL, -- 'BUY', 'SELL', 'CLOSE'
-    strength        DECIMAL(5, 2), -- Signal strength score
-    rsi             DECIMAL(10, 2),
-    bb_position     DECIMAL(5, 2), -- Position relative to Bollinger Bands
-    ema_trend       TEXT, -- 'ABOVE' or 'BELOW' EMA
-    executed        BOOLEAN DEFAULT false,
-    reason          TEXT,
+    signal_type     TEXT NOT NULL,        -- 'LONG', 'SHORT', 'CLOSE'
+    strategy        TEXT NOT NULL,        -- 'crypto', 'forex', etc.
+    price           DECIMAL(12, 2),       -- Entry price
+    stop_loss       DECIMAL(12, 2),       -- Stop loss price
+    take_profit     DECIMAL(12, 2),       -- Take profit price
+    confidence      DECIMAL(5, 2),        -- Signal confidence score (0-100)
+    rsi             DECIMAL(10, 2),       -- RSI value at signal time
+    macd            DECIMAL(10, 5),       -- MACD value
+    ema_fast        DECIMAL(12, 2),       -- Fast EMA value
+    ema_slow        DECIMAL(12, 2),       -- Slow EMA value
+    bb_position     DECIMAL(5, 2),        -- Position relative to Bollinger Bands
+    volume_ratio    DECIMAL(5, 2),        -- Current volume / average volume
+    executed        BOOLEAN DEFAULT false, -- Was this signal executed?
+    ticket          BIGINT,               -- MT5 ticket if executed
+    reason          TEXT,                 -- Reason for signal or rejection
     created_at      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (signal_id, time)
 );
