@@ -52,6 +52,7 @@ class Trade(BaseModel):
     current_profit: Optional[float]
     current_pips: Optional[float]
     strategy: Optional[str]
+    last_updated: datetime
 
 class TradeHistory(BaseModel):
     trade_id: int
@@ -113,8 +114,8 @@ async def get_metrics(db: psycopg2.extensions.connection = Depends(get_db)):
                 "profit_today": float(metrics["profit_today"]),
                 "drawdown": float(metrics["drawdown"]),
                 "open_positions": int(metrics["open_positions"]),
-                "win_rate": float(stats["win_rate"]) if stats else 0.0,
-                "profit_factor": float(stats["profit_factor"]) if stats else 0.0
+                "win_rate": float(stats["win_rate"]) if stats and stats["win_rate"] is not None else 0.0,
+                "profit_factor": float(stats["profit_factor"]) if stats and stats["profit_factor"] is not None else 0.0
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -92,17 +92,15 @@ def main():
         df_active['duration'] = df_active['duration'].apply(lambda x: str(x).split('.')[0])
 
         cols = ['symbol', 'type', 'lots', 'open_price', 'current_profit', 'current_pips', 'duration']
-        st.dataframe(
-            df_active[cols].style.format({
-                'lots': '{:.2f}',
-                'open_price': '{:.5f}',
-                'current_profit': '${:.2f}',
-                'current_pips': '{:.1f}'
-            }).applymap(
-                lambda x: 'color: #00FF00' if isinstance(x, (int, float)) and x > 0 else 'color: #FF0000' if isinstance(x, (int, float)) and x < 0 else ''
-            ),
-            use_container_width=True
-        )
+
+        # Format numeric columns
+        df_display = df_active[cols].copy()
+        df_display['lots'] = df_display['lots'].apply(lambda x: f'{x:.2f}')
+        df_display['open_price'] = df_display['open_price'].apply(lambda x: f'{x:.5f}')
+        df_display['current_profit'] = df_display['current_profit'].apply(lambda x: f'${x:.2f}')
+        df_display['current_pips'] = df_display['current_pips'].apply(lambda x: f'{x:.1f}')
+
+        st.dataframe(df_display, use_container_width=True)
     else:
         st.info("No active trades")
 
@@ -173,18 +171,16 @@ def main():
         df_trades['duration'] = df_trades['duration'].apply(lambda x: str(x).split('.')[0])
 
         cols = ['symbol', 'type', 'lots', 'open_price', 'close_price', 'profit', 'pips', 'duration']
-        st.dataframe(
-            df_trades[cols].style.format({
-                'lots': '{:.2f}',
-                'open_price': '{:.5f}',
-                'close_price': '{:.5f}',
-                'profit': '${:.2f}',
-                'pips': '{:.1f}'
-            }).applymap(
-                lambda x: 'color: #00FF00' if isinstance(x, (int, float)) and x > 0 else 'color: #FF0000' if isinstance(x, (int, float)) and x < 0 else ''
-            ),
-            use_container_width=True
-        )
+
+        # Format numeric columns
+        df_display = df_trades[cols].copy()
+        df_display['lots'] = df_display['lots'].apply(lambda x: f'{x:.2f}')
+        df_display['open_price'] = df_display['open_price'].apply(lambda x: f'{x:.5f}')
+        df_display['close_price'] = df_display['close_price'].apply(lambda x: f'{x:.5f}')
+        df_display['profit'] = df_display['profit'].apply(lambda x: f'${x:.2f}')
+        df_display['pips'] = df_display['pips'].apply(lambda x: f'{x:.1f}')
+
+        st.dataframe(df_display, use_container_width=True)
 
     # Hourly performance heatmap
     st.subheader("Trading Hours Performance")
@@ -211,7 +207,7 @@ def main():
 
     # Auto-refresh
     time.sleep(REFRESH_INTERVAL)
-    st.experimental_rerun()
+    st.rerun()
 
 if __name__ == "__main__":
     main()
